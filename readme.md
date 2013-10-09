@@ -9,13 +9,17 @@ This plugins supports both IOS and Android.
 
 ### Installation ###
 
-The following snippet has to one of your scripts used to initialise your application:
+Install our module through the Help -> Install Mobile Module. The URLs are:
+- IOS: http://www.plotprojects.com/downloads/com.plotprojects.ti-iphone-latest.zip
+- Android: http://www.plotprojects.com/downloads/com.plotprojects.ti-android-latest.zip
+
+The following snippet has to one of your scripts used to initialize your application:
 ```
 var plot = require('com.plotprojects.ti');
-plot.initPlot({ publicKey:'REPLACE_ME' });
+plot.initPlot({ publicToken:'REPLACE_ME' });
 ```
 
-You can obtain the public key at: http://www.plotprojects.com/
+You can obtain the public token at: http://www.plotprojects.com/
 
 The following snippet has to be added to tiapp.xml to the ```ti:app``` element:
 ```
