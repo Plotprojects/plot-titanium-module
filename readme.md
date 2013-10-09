@@ -9,17 +9,17 @@ This plugins supports both IOS and Android.
 
 ### Installation ###
 
-Install our module through the Help -> Install Mobile Module. The URLs are:
+Install our module through the Help => Install Mobile Module. The URLs are:
 - IOS: http://www.plotprojects.com/downloads/com.plotprojects.ti-iphone-latest.zip
 - Android: http://www.plotprojects.com/downloads/com.plotprojects.ti-android-latest.zip
 
-The following snippet has to one of your scripts used to initialize your application:
+The following snippet has to be added to one of your scripts used to initialize your application (usually app.js or alloy.js):
 ```
 var plot = require('com.plotprojects.ti');
 plot.initPlot({ publicToken:'REPLACE_ME' });
 ```
 
-You can obtain the public token at: http://www.plotprojects.com/
+You can obtain the public token at: http://www.plotprojects.com/getourplugin/
 
 The following snippet has to be added to tiapp.xml to the ```ti:app``` element:
 ```
@@ -39,7 +39,7 @@ The following snippet has to be added to tiapp.xml to the ```ti:app``` element:
 
 _plot.initPlot(config)_
 
-Initialises Plot. You must call this method before calling other methods Plot provides.
+Initializes Plot. You must call this method before calling other methods Plot provides.
 The _config_ parameter is an object and may have the following properties:
 
 <table>
@@ -48,7 +48,7 @@ The _config_ parameter is an object and may have the following properties:
 </tr><tr>
 <td>cooldownPeriod</td><td>The cooldown period between notifications in seconds. (default disabled)</td>
 </tr><tr>
-<td>cooldownPeriod</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
+<td>enableOnFirstRun</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
 </tr>
 </table>
 
@@ -74,6 +74,7 @@ Returns the current version of the Plot plugin.
 
 ### More information ###
 Website: http://www.plotprojects.com/
+Technical support: https://groups.google.com/forum/#!forum/plot-users
 
 ### License ###
 The source files included in the repository are released under the Apache License, Version 2.0.
