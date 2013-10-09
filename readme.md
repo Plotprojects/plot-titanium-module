@@ -1,6 +1,6 @@
-Plot Appcelerator module
+Plot Appcelerator Titanium module
 ========================
-A module for Titinium apps that adds location based notifications. 
+A module for Appcelerator Titanium apps that adds location based notifications. 
 
 ### Supported platforms ###
 
