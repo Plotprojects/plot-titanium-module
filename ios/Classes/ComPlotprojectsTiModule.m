@@ -179,10 +179,6 @@ static NSDictionary* launchOptions;
     [Plot setCooldownPeriod:period];
 }
 
--(void)setEnableBackgroundModeWarning:(BOOL)enabled {
-    [Plot setEnableBackgroundModeWarning:enabled];
-}
-
 -(NSString*)version {
     return [Plot version];
 }
