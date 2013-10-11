@@ -49,6 +49,8 @@ The _config_ parameter is an object and may have the following properties:
 <td>cooldownPeriod</td><td>The cooldown period between notifications in seconds. (default disabled)</td>
 </tr><tr>
 <td>enableOnFirstRun</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
+</tr><tr>
+<td>enableBackgroundModeWarning</td><td>Whether background warnings should be enabled. See <a href="http://www.plotprojects.com/plot-app-library-documentation-latest/">documentation</a>. Default <code>true</code>. (iOS only)</td>
 </tr>
 </table>
 

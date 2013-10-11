@@ -171,7 +171,7 @@ static NSDictionary* launchOptions;
     [Plot disable];
 }
 
--(BOOL)isEnabled {
+-(BOOL)enabled {
     return [Plot isEnabled];
 }
 

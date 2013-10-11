@@ -12,11 +12,11 @@ To access this module from JavaScript, you would do the following:
 
 The plot variable is a reference to the Module object.	
 
-## Function reference 
+## Function reference
 
 _plot.initPlot(config)_
 
-Initialises Plot. You must call this method before calling other methods Plot provides.
+Initializes Plot. You must call this method before calling other methods Plot provides.
 The _config_ parameter is an object and may have the following properties:
 
 <table>
@@ -25,7 +25,9 @@ The _config_ parameter is an object and may have the following properties:
 </tr><tr>
 <td>cooldownPeriod</td><td>The cooldown period between notifications in seconds. (default disabled)</td>
 </tr><tr>
-<td>cooldownPeriod</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
+<td>enableOnFirstRun</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
+</tr><tr>
+<td>enableBackgroundModeWarning</td><td>Whether background warnings should be enabled. See <a href="http://www.plotprojects.com/plot-app-library-documentation-latest/">documentation</a>. Default <code>true</code>. (iOS only)</td>
 </tr>
 </table>
 
@@ -49,10 +51,9 @@ _plot.version_
 
 Returns the current version of the Plot plugin.
 
-## More information
+### More information ###
+Website: http://www.plotprojects.com/
+Technical support: https://groups.google.com/forum/#!forum/plot-users
 
-http://www.plotprojects.com
-
-## License
-
+### License ###
 The source files included in the repository are released under the Apache License, Version 2.0.
