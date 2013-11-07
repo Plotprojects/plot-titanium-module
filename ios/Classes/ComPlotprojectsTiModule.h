@@ -19,8 +19,8 @@
 #import "TiModule.h"
 #import "Plot.h"
 
-@interface ComPlotprojectsTiModule : TiModule<PlotDelegate>
-{
+@interface ComPlotprojectsTiModule : TiModule<PlotDelegate> {
+    NSMutableArray* notificationsToBeReceived;
 }
 
 @end

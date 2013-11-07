@@ -7,7 +7,14 @@ win.add(label);
 win.open();
 
 var plot = require('com.plotprojects.ti');
-plot.initPlot({	publicToken:'REPLACE_ME' });
 
 
 label.text = plot.version;
+
+
+//Optional:
+// plot.addEventListener("plotNotificationReceived", function(notification) {
+//   alert(notification.message);
+// });
+
+plot.initPlot({	publicToken:'REPLACE_ME' }); //Get your public key from http://www.plotprojects.com/getourplugin/

@@ -37,9 +37,13 @@ The following snippet has to be added to tiapp.xml to the ```ti:app``` element:
 
 ### Function reference ###
 
+_plot.addEventListener("plotNotificationReceived", func)_
+
+Allows specifying your own handler when a notification is opened by the user. The function is passed a notification object, which has the fields "message", "data" and "id". When no listener is added, then the "data" field will be treated as URI and opened.
+
 _plot.initPlot(config)_
 
-Initializes Plot. You must call this method before calling other methods Plot provides.
+Initializes Plot. You must call this method before calling other methods other than the notification handler Plot provides.
 The _config_ parameter is an object and may have the following properties:
 
 <table>

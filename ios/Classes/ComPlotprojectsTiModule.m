@@ -22,9 +22,9 @@
 #import "TiUtils.h"
 #import "Plot.h"
 
-static NSDictionary* launchOptions;
-
 @implementation ComPlotprojectsTiModule
+
+static BOOL plotInitialized = NO; //use static variable to prevent initializing Plot again
 
 #pragma mark Internal
 
@@ -47,6 +47,11 @@ static NSDictionary* launchOptions;
 	// this method is called when the module is first loaded
 	// you *must* call the superclass
 	[super startup];
+    notificationsToBeReceived = nil;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveLocalNotification:)
+                                                 name:kTiLocalNotification
+                                               object:nil];
 	
 	NSLog(@"[INFO] %@ loaded",self);
 }
@@ -82,28 +87,7 @@ static NSDictionary* launchOptions;
 
 #pragma mark Plot
 
-+(void)load {
-    NSLog(@"Plot Loaded");
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didFinishLaunching:)
-                                                 name:UIApplicationDidFinishLaunchingNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveLocalNotification:)
-                                                 name:kTiLocalNotification
-                                               object:nil];
-}
-
-+(void)didFinishLaunching:(NSNotification*)notification {
-    launchOptions = notification.userInfo;
-    if (launchOptions == nil) {
-        //launchOptions is nil when not start because of notification or url open
-        launchOptions = [NSDictionary dictionary];
-    }
-}
-
-+(id)objectFromDictionary:(NSDictionary*)dict forKey:(NSString*)key {
+-(id)objectFromDictionary:(NSDictionary*)dict forKey:(NSString*)key {
     id result = [dict objectForKey:key];
     if ([result isKindOfClass:[NSNull class]]) {
         return nil;
@@ -111,7 +95,8 @@ static NSDictionary* launchOptions;
     return result;
 }
 
-+(void)didReceiveLocalNotification:(NSNotification*)notification {
+-(void)didReceiveLocalNotification:(NSNotification*)notification {
+    NSLog(@"didReceiveLocalNotification");
     //Transform a notification back to an UILocalNotification
     NSDictionary* dictionary = [notification object];
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
@@ -127,14 +112,17 @@ static NSDictionary* launchOptions;
     localNotification.applicationIconBadgeNumber = [self objectFromDictionary:dictionary forKey:@"badge"];
     localNotification.userInfo = [self objectFromDictionary:dictionary forKey:@"userInfo"];
     
-    [Plot handleNotification:localNotification];
-    
+    if (plotInitialized) {
+        [Plot handleNotification:localNotification];
+    } else {
+        [notificationsToBeReceived addObject:localNotification];
+    }
 }
 
 -(void)initPlot:(id)args {
     ENSURE_UI_THREAD_1_ARG(args);
-    ENSURE_SINGLE_ARG(args,NSDictionary);
-    if  (launchOptions != nil) {
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    if  (!plotInitialized) {
         NSString* publicToken = [args objectForKey:@"publicToken"];
         
         PlotConfiguration* config = [[PlotConfiguration alloc] initWithPublicKey:publicToken delegate:self];
@@ -154,11 +142,15 @@ static NSDictionary* launchOptions;
         if (enableBackgroundModeWarning != nil) {
             [config setEnableBackgroundModeWarning:[enableBackgroundModeWarning boolValue]];
         }
+        plotInitialized = YES;
         
-        [Plot initializeWithConfiguration:config launchOptions:launchOptions];
-        launchOptions = nil;
+        [Plot initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+        
+        for (UILocalNotification* n in notificationsToBeReceived) {
+            [Plot handleNotification:n];
+        }
+        notificationsToBeReceived = nil;
     }
-    
 }
 
 -(void)enable:(id)args {
@@ -181,6 +173,24 @@ static NSDictionary* launchOptions;
 
 -(NSString*)version {
     return [Plot version];
+}
+
+-(void)plotHandleNotification:(UILocalNotification *)notification data:(NSString *)action {
+    [self handleNotification:notification];
+}
+
+-(void)handleNotification:(UILocalNotification*)notification {
+    if ([self _hasListeners:@"plotNotificationReceived"]) {
+        NSDictionary* eventNotification = [NSDictionary dictionaryWithObjectsAndKeys:
+                           [notification.userInfo objectForKey:@"action"], @"data",
+                           notification.alertBody, @"message",
+                           [notification.userInfo objectForKey:@"identifier"], @"identifier"
+                           , nil];
+        [self fireEvent:@"plotNotificationReceived" withObject:eventNotification];
+    } else {
+        NSString* data = [notification.userInfo objectForKey:@"action"];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:data]];
+    }
 }
 
 @end
