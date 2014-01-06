@@ -138,10 +138,6 @@ static BOOL plotInitialized = NO; //use static variable to prevent initializing 
             [config setEnableOnFirstRun:[enableOnFirstRun boolValue]];
         }
         
-        NSNumber* enableBackgroundModeWarning = [args objectForKey:@"enableBackgroundModeWarning"];
-        if (enableBackgroundModeWarning != nil) {
-            [config setEnableBackgroundModeWarning:[enableBackgroundModeWarning boolValue]];
-        }
         plotInitialized = YES;
         
         [Plot initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
