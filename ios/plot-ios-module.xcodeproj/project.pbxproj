@@ -26,7 +26,7 @@
 		24DD6CFA1134B3F500162E58 /* ComPlotprojectsTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* ComPlotprojectsTiModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h */; };
 		24DE9E1211C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m */; };
-		4D3B254118C9FC74009DF8D3 /* libPlot-v1_5_3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D3B254018C9FC74009DF8D3 /* libPlot-v1_5_3.a */; };
+		4D492F2018EDC36300AB7A40 /* libPlot-v1_5_5.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D492F1F18EDC36300AB7A40 /* libPlot-v1_5_5.a */; };
 		4D53BA8417FF074500C63879 /* Plot.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D53BA8317FF074500C63879 /* Plot.h */; };
 		AA747D9F0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -48,7 +48,7 @@
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
 		24DE9E0F11C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ComPlotprojectsTiModuleAssets.h; path = Classes/ComPlotprojectsTiModuleAssets.h; sourceTree = "<group>"; };
 		24DE9E1011C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiModuleAssets.m; path = Classes/ComPlotprojectsTiModuleAssets.m; sourceTree = "<group>"; };
-		4D3B254018C9FC74009DF8D3 /* libPlot-v1_5_3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_5_3.a"; sourceTree = "<group>"; };
+		4D492F1F18EDC36300AB7A40 /* libPlot-v1_5_5.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_5_5.a"; sourceTree = "<group>"; };
 		4D53BA8317FF074500C63879 /* Plot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plot.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComPlotprojectsTi_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -60,8 +60,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D3B254118C9FC74009DF8D3 /* libPlot-v1_5_3.a in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+				4D492F2018EDC36300AB7A40 /* libPlot-v1_5_5.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,7 +90,7 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4D3B254018C9FC74009DF8D3 /* libPlot-v1_5_3.a */,
+				4D492F1F18EDC36300AB7A40 /* libPlot-v1_5_5.a */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
 			);
 			name = Frameworks;
@@ -242,6 +242,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"/Users/mark/Titanium_Studio_Workspace/plot-ios-module",
 					/Users/mark/Titanium_Studio_Workspace/plot/ios,
+					"$(PROJECT_DIR)",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -283,6 +284,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"/Users/mark/Titanium_Studio_Workspace/plot-ios-module",
 					/Users/mark/Titanium_Studio_Workspace/plot/ios,
+					"$(PROJECT_DIR)",
 				);
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";

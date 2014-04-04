@@ -1,6 +1,6 @@
 Plot Appcelerator Titanium module
 ========================
-A module for Appcelerator Titanium apps that adds location based notifications. 
+A module for Appcelerator Titanium apps that adds location based notifications. iBeacon support in beta for iOS.
 
 ### Supported platforms ###
 

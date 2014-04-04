@@ -2,7 +2,7 @@
 
 ## Description
 
-Enable the power of Location Based Notifications provided by Plot in your Titanium apps.
+Enable the power of Location Based Notifications provided by Plot in your Titanium apps. iBeacon support is in beta.
 
 ## Accessing the plot-ios-module Module
 
