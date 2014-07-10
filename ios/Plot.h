@@ -7,8 +7,21 @@
 
 #import <Foundation/Foundation.h>
 
-extern const NSString* PlotNotificationActionKey;
-extern const NSString* PlotNotificationIsAppInForegroundKey;
+//Keys for userInfo properties in UILocalNotifications created by Plot:
+
+extern NSString* const PlotNotificationActionKey;
+extern NSString* const PlotNotificationDataKey; //synonym for PlotNotificationActionKey
+extern NSString* const PlotNotificationIsAppInForegroundKey;
+extern NSString* const PlotNotificationIsBeacon;
+extern NSString* const PlotNotificationTrigger;
+extern NSString* const PlotNotificationGeofenceLatitude;
+extern NSString* const PlotNotificationGeofenceLongitude;
+
+
+//values for PlotNotificationTrigger:
+extern NSString* const PlotNotificationTriggerEnter;
+extern NSString* const PlotNotificationTriggerExit;
+
 
 @class UILocalNotification;
 
