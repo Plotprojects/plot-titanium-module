@@ -17,4 +17,4 @@ label.text = plot.version;
 //   alert(notification.message);
 // });
 
-plot.initPlot({	publicToken:'REPLACE_ME' }); //Get your public token from http://www.plotprojects.com/getourplugin/
+plot.initPlot({	publicToken:'REPLACE_ME', notificationFilterEnabled: false }); //Get your public token from http://www.plotprojects.com/getourplugin/

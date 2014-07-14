@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Floating Market B.V.
+ * Copyright 2014 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,33 @@
 
 package com.plotprojects.titanium;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
-
-import com.plotprojects.retail.android.Plot;
-import com.plotprojects.retail.android.PlotConfiguration;
-import com.plotprojects.retail.android.FilterableNotification;
-import com.plotprojects.retail.android.OpenUriReceiver;
-
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
-import org.appcelerator.kroll.KrollEventCallback;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.IntentProxy;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+import com.plotprojects.retail.android.FilterableNotification;
+import com.plotprojects.retail.android.OpenUriReceiver;
+import com.plotprojects.retail.android.Plot;
+import com.plotprojects.retail.android.PlotConfiguration;
+import com.plotprojects.titanium.NotificationBatches.NotificationsAndId;
 
 @Kroll.module(name="PlotAndroidModule", id="com.plotprojects.ti")
+@SuppressWarnings("rawtypes") //required for Kroll
 public class PlotAndroidModule extends KrollModule implements NotificationQueue.NewNotificationListener {
 	private static final String ENABLE_ON_FIRST_RUN_FIELD = "enableOnFirstRun";
 	private static final String COOLDOWN_PERIOD_FIELD = "cooldownPeriod";
 	private static final String PUBLIC_TOKEN_FIELD = "publicToken";
+	private static final String NOTICATION_FILTER_ENABLED = "notificationFilterEnabled";
 	private static final String NOTIFICATION_RECEIVED_EVENT = "plotNotificationReceived";
-	private static boolean initialized = false;	
-	private WeakReference<TiApplication> tiApp = null;
 
 	@Kroll.onAppCreate
 	public static void onAppCreate(TiApplication app) {
@@ -56,12 +50,9 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	}
 	
 	public void newNotification() {
-		if (tiApp == null) {
-			return;
-		}
-		TiApplication app = tiApp.get();
-		if (app == null || app != TiApplication.getInstance()) {
-			Log.e("PLOT", "Old Module");
+		TiApplication app = TiApplication.getInstance();
+		if (app == null) {
+			Log.e("PLOT", "TiApplication not intialized");
 			return;
 		}
 		
@@ -82,10 +73,7 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 		if (hasListeners(NOTIFICATION_RECEIVED_EVENT)) {
 			Log.e("PlotAndroidModule", "Opening for listener");
 			// Convert notification to map
-			Map<String, String> jsonNotification = new HashMap<String, String>();
-			jsonNotification.put("id", notification.getId());
-			jsonNotification.put("message", notification.getMessage());
-			jsonNotification.put("data", notification.getData());
+			Map<String, Object> jsonNotification = NotificationJsonUtil.notificationToMap(notification);
 			fireEvent(NOTIFICATION_RECEIVED_EVENT, jsonNotification);
 		} else {
 			Log.e("PlotAndroidModule", "Opening URI: " + notification.getData());
@@ -93,8 +81,6 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 				return;
 
 			try {
-				Uri uri = Uri.parse(notification.getData());
-
 				Context appContext = TiApplication.getInstance().getApplicationContext();
 				Intent openBrowserIntent = new Intent(appContext, OpenUriReceiver.class);
 				openBrowserIntent.putExtra("notification", notification);
@@ -107,9 +93,9 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	}
 
 	@Kroll.method
-	public void initPlot(@SuppressWarnings("rawtypes") HashMap configuration) {	
+	public void initPlot(HashMap configuration) {	
 		TiApplication appContext = TiApplication.getInstance();
-		tiApp = new WeakReference(appContext);
+
 		Activity activity = appContext.getCurrentActivity();
 
 		if (configuration == null) {
@@ -122,6 +108,13 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 
 		if (!(configuration.get(PUBLIC_TOKEN_FIELD) instanceof String)) {
 			throw new IllegalArgumentException("Public key not specified correctly.");
+		}
+		
+		if (configuration.containsKey(NOTICATION_FILTER_ENABLED) && !(configuration.get(NOTICATION_FILTER_ENABLED) instanceof Boolean)) {
+			throw new IllegalArgumentException("NotificationFilterEnabled not specified correctly.");
+		} 
+		if (configuration.containsKey(NOTICATION_FILTER_ENABLED)) {
+			SettingsUtil.setNotificationFilterEnabled((Boolean) configuration.get(NOTICATION_FILTER_ENABLED)); 
 		}
 
 		PlotConfiguration config = new PlotConfiguration((String) configuration.get(PUBLIC_TOKEN_FIELD));
@@ -170,5 +163,24 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	public String getVersion() {
 		return Plot.getVersion();
 	}	
+	
+	@Kroll.method
+	public HashMap popFilterableNotifications() {
+		NotificationsAndId notificationsAndId = NotificationBatches.popBatch();
 
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		result.put("filterId", notificationsAndId.getId());
+		result.put("notifications", NotificationJsonUtil.notificationsToMap(notificationsAndId.getNotifications()));
+		return result;
+	}
+	
+	@Kroll.method
+	public void sendNotifications(HashMap batch) {
+		String filterId = (String) batch.get("filterId");
+		List<FilterableNotification> notifications = NotificationBatches.getBatch(filterId);
+		
+		Object[] jsonNotifications = (Object[]) batch.get("notifications");
+		List<FilterableNotification> notificationsToSend = NotificationJsonUtil.getNotifications(jsonNotifications, notifications);
+		NotificationBatches.sendBatch(filterId, notificationsToSend);
+	}
 }

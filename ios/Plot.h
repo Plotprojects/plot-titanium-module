@@ -9,6 +9,7 @@
 
 //Keys for userInfo properties in UILocalNotifications created by Plot:
 
+extern NSString* const PlotNotificationIdentifier;
 extern NSString* const PlotNotificationActionKey;
 extern NSString* const PlotNotificationDataKey; //synonym for PlotNotificationActionKey
 extern NSString* const PlotNotificationIsAppInForegroundKey;
@@ -16,7 +17,7 @@ extern NSString* const PlotNotificationIsBeacon;
 extern NSString* const PlotNotificationTrigger;
 extern NSString* const PlotNotificationGeofenceLatitude;
 extern NSString* const PlotNotificationGeofenceLongitude;
-
+extern NSString* const PlotNotificationDwellingMinutes;
 
 //values for PlotNotificationTrigger:
 extern NSString* const PlotNotificationTriggerEnter;

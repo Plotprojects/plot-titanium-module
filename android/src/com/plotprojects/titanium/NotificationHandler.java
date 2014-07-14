@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Floating Market B.V.
+ * Copyright 2014 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import android.util.Log;
 
 import com.plotprojects.retail.android.FilterableNotification;
 
-import org.appcelerator.titanium.TiApplication;
 
 public class NotificationHandler extends BroadcastReceiver {
 
