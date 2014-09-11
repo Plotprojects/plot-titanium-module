@@ -19,6 +19,12 @@ plot.initPlot({ publicToken: 'REPLACE_ME', notificationFilterEnabled: false });
 
 You can obtain the public token at: http://www.plotprojects.com/getourplugin/
 
+When your app also targets IOS, then it is also required to specify why your app requires location services. You do that in your plist. Add the following lines to _tiApp.xml_ at the _ios/plist/dict_ element:
+```
+<key>NSLocationAlwaysUsageDescription</key>
+<string>Your location is used to instantly inform you when you are near a location that is interesting to you.</string>
+```
+
 ### Function reference ###
 
 _plot.addEventListener("plotNotificationReceived", func)_
