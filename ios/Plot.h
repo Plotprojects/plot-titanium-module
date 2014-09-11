@@ -51,7 +51,7 @@ extern NSString* const PlotNotificationTriggerExit;
 @property (assign, nonatomic) BOOL enableOnFirstRun;
 @property (assign, nonatomic) BOOL enableBackgroundModeWarning __attribute__((deprecated));
 
--(id)initWithPublicKey:(NSString*)publicKey delegate:(id<PlotDelegate>)delegate;
+-(instancetype)initWithPublicKey:(NSString*)publicKey delegate:(id<PlotDelegate>)delegate;
 
 @end
 

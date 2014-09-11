@@ -6,6 +6,10 @@ var label = Ti.UI.createLabel();
 win.add(label);
 win.open();
 
+//Add the following lines to tiApp.xml at ios/plist/dict:
+//<key>NSLocationAlwaysUsageDescription</key>
+//<string>Your location is used to instantly inform you when you are near a location that is interesting to you.</string>
+
 var plot = require('com.plotprojects.ti');
 
 
