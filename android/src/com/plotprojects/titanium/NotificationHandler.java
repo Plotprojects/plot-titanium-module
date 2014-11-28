@@ -30,7 +30,6 @@ public class NotificationHandler extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-    	Log.e("PLOTNotificationHandler", "Received notification");
         PackageManager pm = context.getPackageManager();
         FilterableNotification notification = intent.getParcelableExtra("notification");
         

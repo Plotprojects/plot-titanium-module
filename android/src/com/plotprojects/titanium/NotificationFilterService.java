@@ -30,7 +30,7 @@ public final class NotificationFilterService extends TiJSService implements Noti
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+	public int onStartCommand(Intent intent, int flags, int startId) {		
 		if (NotificationFilterUtil.isNotificationFilterIntent(intent)) {
 			NotificationFilterUtil.Batch batch = NotificationFilterUtil.getBatch(intent, this);
 			if (batch != null) {
@@ -46,7 +46,13 @@ public final class NotificationFilterService extends TiJSService implements Noti
 		} else {
 			Log.w(LOG_TAG, String.format("Received unexpected intent with action: %s", intent.getAction()));
 		}
+		stopSelf(startId);
 		return START_NOT_STICKY;
+	}
+	
+	@Override
+	public void onTaskRemoved(Intent rootIntent) {
+
 	}
 	
 }

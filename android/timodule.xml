@@ -29,6 +29,12 @@
 				<service android:name="com.plotprojects.retail.android.PlotBackgroundService" android:process=":PlotProcess">
     				<meta-data android:name="debug" android:value="false" />
 				</service>
+				
+				<provider
+                android:authorities="${tiapp.properties['id']}.plot.debuglogprovider"
+                android:name="com.plotprojects.retail.android.DebugLogProvider"
+                android:exported="true" />
+                
 			</application>
 		</manifest>
 	</android>

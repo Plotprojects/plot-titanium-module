@@ -163,6 +163,11 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	public String getVersion() {
 		return Plot.getVersion();
 	}	
+
+	@Kroll.method
+	public void mailDebugLog() {
+		Plot.mailDebugLog();
+	}
 	
 	@Kroll.method
 	public HashMap popFilterableNotifications() {

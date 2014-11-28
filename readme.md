@@ -76,6 +76,10 @@ _plot.sendNotifications(filterableNotifications)_
 
 Sends the modified notifications returned from popFilterableNotifications(). Only call this method once per call to popFilterableNotifications(). Only to be called from the Notification Filter.
 
+_plot.mailDebugLog()_
+
+Sends the collected debug log via mail. It will open your mail application to send the mail.
+
 ### Notification Filter ###
 
 The notification filter allows you to filter out or edit notifications before they are shown. To enable the notification filter, you add the property _notificationFilterEnabled_ with the value _true_ to object passed to initPlot. When the notification filter is disabled the notification filter script won't be executed and all notifications will shown.

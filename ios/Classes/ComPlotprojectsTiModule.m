@@ -19,9 +19,12 @@
 #import "ComPlotprojectsTiModule.h"
 #import "TiBase.h"
 #import "TiHost.h"
+#import "TiApp.h"
 #import "TiUtils.h"
 #import "Plot.h"
 #import "ComPlotprojectsTiNotificationFilter.h"
+
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 static BOOL plotInitialized = NO; //use static variable to prevent initializing Plot again
 static int filterIndex = 1;
@@ -159,7 +162,11 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
         
         plotInitialized = YES;
         
-        [Plot initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+        if ([@"test" isEqualToString:TI_APPLICATION_DEPLOYTYPE] || [@"development" isEqualToString:TI_APPLICATION_DEPLOYTYPE]) {
+            [PlotDebug initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+        } else {
+            [PlotRelease initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+        }
         
         for (UILocalNotification* n in notificationsToBeReceived) {
             [Plot handleNotification:n];
@@ -180,6 +187,12 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
 
 -(BOOL)enabled {
     return [Plot isEnabled];
+}
+
+-(void)mailDebugLog:(id)args {
+    ENSURE_UI_THREAD_0_ARGS
+    
+    [Plot mailDebugLog:TiApp.controller];
 }
 
 -(NSDictionary*)popFilterableNotifications:(id)args {
@@ -210,7 +223,6 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     for (UILocalNotification* localNotification in notifications) {
         [jsonNotifications addObject:[self localNotificationToDictionary:localNotification]];
     }
-    
     
     [result setObject:filterId forKey:@"filterId"];
     [result setObject:jsonNotifications forKey:@"notifications"];
