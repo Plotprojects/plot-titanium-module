@@ -26,7 +26,7 @@
 				</receiver>
 				<receiver android:exported="false" android:name="com.plotprojects.retail.android.OpenUriReceiver" />
 				<service android:name="com.plotprojects.titanium.NotificationFilterService" android:exported="false" />
-				<service android:name="com.plotprojects.retail.android.PlotBackgroundService" android:process=":PlotProcess">
+				<service android:name="com.plotprojects.retail.android.PlotBackgroundService">
     				<meta-data android:name="debug" android:value="false" />
 				</service>
 				
