@@ -10,6 +10,9 @@
 			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 			<uses-permission android:name="android.permission.VIBRATE"/>
 			<application>
+				<activity android:name="com.plotprojects.retail.android.LandingPageActivity"
+                  android:configChanges="orientation|screenSize" />
+                  
 				<receiver android:name="com.plotprojects.retail.android.PlotBootReceiver">
   					<intent-filter>
     					<action android:name="android.intent.action.BOOT_COMPLETED"/>
