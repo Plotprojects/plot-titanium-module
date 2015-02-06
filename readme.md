@@ -9,7 +9,7 @@ This plugins supports both IOS and Android.
 
 ### Installation ###
 
-Install our module through the marketplace: https://marketplace.appcelerator.com/listing?q=Plot%20–%20Location%20Based%20Notifications
+Install our module by downloading our [latest release from releases](https://github.com/Plotprojects/plot-titanium-module/releases).
 
 The following snippet has to be added to one of your scripts used to initialize your application (usually app.js or alloy.js):
 ```
@@ -110,6 +110,8 @@ plot.sendNotifications(filterableNotifications);
 Website: http://www.plotprojects.com/
 
 Technical support: https://groups.google.com/forum/#!forum/plot-users
+
+[![gitTio](http://gitt.io/badge.svg)](http://gitt.io/component/com.plotprojects.ti)
 
 ### License ###
 The source files included in the repository are released under the Apache License, Version 2.0.
