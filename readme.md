@@ -109,6 +109,8 @@ plot.sendNotifications(filterableNotifications);
 ### More information ###
 Website: http://www.plotprojects.com/
 
+Documentation: http://www.plotprojects.com/support
+
 Technical support: https://groups.google.com/forum/#!forum/plot-users
 
 [![gitTio](http://gitt.io/badge.svg)](http://gitt.io/component/com.plotprojects.ti)
