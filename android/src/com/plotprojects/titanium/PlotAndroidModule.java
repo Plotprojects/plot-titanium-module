@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 
@@ -52,7 +53,11 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	public void newNotification() {
 		TiApplication app = TiApplication.getInstance();
 		if (app == null) {
-			Log.e("PLOT", "TiApplication not intialized");
+			Log.i("PlotAndroidModule", "TiApplication not intialized");
+			return;
+		}
+		if (!KrollRuntime.isInitialized()) {
+			Log.i("PlotAndroidModule", "KrollRuntime not intialized");
 			return;
 		}
 		
@@ -71,7 +76,7 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
   
 	private void handleNotification(FilterableNotification notification) {
 		if (hasListeners(NOTIFICATION_RECEIVED_EVENT)) {
-			Log.e("PlotAndroidModule", "Opening for listener");
+			Log.i("PlotAndroidModule", "Opening for listener");
 			// Convert notification to map
 			Map<String, Object> jsonNotification = NotificationJsonUtil.notificationToMap(notification);
 			fireEvent(NOTIFICATION_RECEIVED_EVENT, jsonNotification);
