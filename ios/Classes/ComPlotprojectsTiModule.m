@@ -29,6 +29,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 static BOOL plotInitialized = NO; //use static variable to prevent initializing Plot again
 static int filterIndex = 1;
 static BOOL enableNotificationFilter = NO;
+static BOOL willHandleNotifications = NO;
 
 static NSMutableArray* notificationsToBeReceived = nil;
 static NSMutableArray* notificationsToFilter = nil;
@@ -160,6 +161,8 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
             [config setEnableOnFirstRun:[enableOnFirstRun boolValue]];
         }
         
+        willHandleNotifications = [args objectForKey:@"willHandleNotifications"];
+    
         plotInitialized = YES;
         
         if ([@"test" isEqualToString:TI_APPLICATION_DEPLOYTYPE] || [@"development" isEqualToString:TI_APPLICATION_DEPLOYTYPE]) {
@@ -318,7 +321,8 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     if ([self _hasListeners:@"plotNotificationReceived"]) {
         NSDictionary* eventNotification = [self localNotificationToDictionary:notification];
         [self fireEvent:@"plotNotificationReceived" withObject:eventNotification];
-    } else {
+    }
+    if (willHandleNotifications == NO) {
         NSString* data = [notification.userInfo objectForKey:@"action"];
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:data]];
     }
