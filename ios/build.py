@@ -3,13 +3,13 @@
 # Appcelerator Titanium Module Packager
 #
 #
-import os, subprocess, sys, glob, string, optparse
+import os, subprocess, sys, glob, string
 import zipfile
 from datetime import date
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
-required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
+required_module_keys = ['architectures', 'name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
 module_defaults = {
 	'description':'My module',
 	'author': 'Your Name',
@@ -50,6 +50,8 @@ def read_ti_xcconfig():
 def generate_doc(config):
 	docdir = os.path.join(cwd,'documentation')
 	if not os.path.exists(docdir):
+		docdir = os.path.join(cwd,'..','documentation')
+	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
 
@@ -68,6 +70,8 @@ def generate_doc(config):
 
 def compile_js(manifest,config):
 	js_file = os.path.join(cwd,'assets','com.plotprojects.ti.js')
+	if not os.path.exists(js_file):
+		js_file = os.path.join(cwd,'..','assets','com.plotprojects.ti.js')
 	if not os.path.exists(js_file): return
 
 	from compiler import Compiler
@@ -110,16 +114,20 @@ def die(msg):
 	print msg
 	sys.exit(1)
 
-def info(msg):
-	print "[INFO] %s" % msg
-
 def warn(msg):
 	print "[WARN] %s" % msg
 
+def error(msg):
+	print "[ERROR] %s" % msg
+
 def validate_license():
-	c = open(os.path.join(cwd,'LICENSE')).read()
-	if c.find(module_license_default)!=-1:
-		warn('please update the LICENSE file with your license text before distributing')
+	license_file = os.path.join(cwd,'LICENSE')
+	if not os.path.exists(license_file):
+		license_file = os.path.join(cwd,'..','LICENSE')
+	if os.path.exists(license_file):
+		c = open(license_file).read()
+		if c.find(module_license_default)!=-1:
+			warn('please update the LICENSE file with your license text before distributing')
 
 def validate_manifest():
 	path = os.path.join(cwd,'manifest')
@@ -134,6 +142,7 @@ def validate_manifest():
 		manifest[key.strip()]=value.strip()
 	for key in required_module_keys:
 		if not manifest.has_key(key): die("missing required manifest key '%s'" % key)
+		if manifest[key].strip() == '': die("manifest key '%s' missing required value" % key)
 		if module_defaults.has_key(key):
 			defvalue = module_defaults[key]
 			curvalue = manifest[key]
@@ -143,8 +152,7 @@ def validate_manifest():
 ignoreFiles = ['.DS_Store','.gitignore','libTitanium.a','titanium.jar','README']
 ignoreDirs = ['.DS_Store','.svn','.git','CVSROOT']
 
-def zip_dir(zf,dir,basepath,ignoreExt=[]):
-	if not os.path.exists(dir): return
+def zip_dir(zf,dir,basepath,ignore=[],includeJSFiles=False):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
@@ -152,9 +160,10 @@ def zip_dir(zf,dir,basepath,ignoreExt=[]):
 		for file in files:
 			if file in ignoreFiles: continue
 			e = os.path.splitext(file)
-			if len(e) == 2 and e[1] in ignoreExt: continue
+			if len(e) == 2 and e[1] == '.pyc': continue
+			if not includeJSFiles and len(e) == 2 and e[1] == '.js': continue
 			from_ = os.path.join(root, file)
-			to_ = from_.replace(dir, '%s/%s'%(basepath,dir), 1)
+			to_ = from_.replace(dir, basepath, 1)
 			zf.write(from_, to_)
 
 def glob_libfiles():
@@ -182,36 +191,28 @@ def build_module(manifest,config):
 
 	os.system("lipo %s -create -output build/lib%s.a" %(libpaths,moduleid))
 
-def generate_apidoc(apidoc_build_path):
-	global options
+def verify_build_arch(manifest, config):
+	binaryname = 'lib%s.a' % manifest['moduleid']
+	binarypath = os.path.join('build', binaryname)
+	manifestarch = set(manifest['architectures'].split(' '))
 
-	if options.skip_docs:
-		info("Skipping documentation generation.")
-		return False
-	else:
-		info("Module apidoc generation can be skipped using --skip-docs")
-	apidoc_path = os.path.join(cwd, "apidoc")
-	if not os.path.exists(apidoc_path):
-		warn("Skipping apidoc generation. No apidoc folder found at: %s" % apidoc_path)
-		return False
+	output = subprocess.check_output('xcrun lipo -info %s' % binarypath, shell=True)
 
-	if not os.path.exists(apidoc_build_path):
-	    os.makedirs(apidoc_build_path)
-	ti_root = string.strip(subprocess.check_output(["echo $TI_ROOT"], shell=True))
-	if not len(ti_root) > 0:
-		warn("Not generating documentation from the apidoc folder. The titanium_mobile repo could not be found.")
-		warn("Set the TI_ROOT environment variable to the parent folder where the titanium_mobile repo resides (eg.'export TI_ROOT=/Path').")
-		return False
-	docgen = os.path.join(ti_root, "titanium_mobile", "apidoc", "docgen.py")
-	if not os.path.exists(docgen):
-		warn("Not generating documentation from the apidoc folder. Couldn't find docgen.py at: %s" % docgen)
-		return False
+	builtarch = set(output.split(':')[-1].strip().split(' '))
 
-	info("Generating documentation from the apidoc folder.")
-	rc = os.system("\"%s\" --format=jsca,modulehtml --css=styles.css -o \"%s\" -e \"%s\"" % (docgen, apidoc_build_path, apidoc_path))
-	if rc != 0:
-		die("docgen failed")
-	return True
+	print 'Check build architectures\n'
+
+	if ('arm64' not in builtarch):
+		warn('built module is missing 64-bit support.')
+
+	if (manifestarch != builtarch):
+		warn('architectures in manifest: %s' % ', '.join(manifestarch))
+		warn('compiled binary architectures: %s' % ', '.join(builtarch))
+
+		print '\nMODULE BUILD FAILED'
+		error('there is discrepancy between the architectures specified in module manifest and compiled binary.')
+		error('Please update manifest to match module binary architectures.')
+		die('')
 
 def package_module(manifest,mf,config):
 	name = manifest['name'].lower()
@@ -231,34 +232,33 @@ def package_module(manifest,mf,config):
 				filename = string.replace(file,'.md','.html')
 				zf.writestr('%s/documentation/%s'%(modulepath,filename),html)
 
-	apidoc_build_path = os.path.join(cwd, "build", "apidoc")
-	if generate_apidoc(apidoc_build_path):
-		for file in os.listdir(apidoc_build_path):
-			if file in ignoreFiles or os.path.isdir(os.path.join(apidoc_build_path, file)):
-				continue
-			zf.write(os.path.join(apidoc_build_path, file), '%s/documentation/apidoc/%s' % (modulepath, file))
+	p = os.path.join(cwd, 'assets')
+	if not os.path.exists(p):
+		p = os.path.join(cwd, '..', 'assets')
+	if os.path.exists(p):
+		zip_dir(zf,p,'%s/%s' % (modulepath,'assets'),['README'])
 
-	zip_dir(zf,'assets',modulepath,['.pyc','.js'])
-	zip_dir(zf,'example',modulepath,['.pyc'])
-	zip_dir(zf,'platform',modulepath,['.pyc','.js'])
-	zf.write('LICENSE','%s/LICENSE' % modulepath)
+	for dn in ('example','platform'):
+		p = os.path.join(cwd, dn)
+		if not os.path.exists(p):
+			p = os.path.join(cwd, '..', dn)
+		if os.path.exists(p):
+			zip_dir(zf,p,'%s/%s' % (modulepath,dn),['README'],True)
+
+	license_file = os.path.join(cwd,'LICENSE')
+	if not os.path.exists(license_file):
+		license_file = os.path.join(cwd,'..','LICENSE')
+	if os.path.exists(license_file):
+		zf.write(license_file,'%s/LICENSE' % modulepath)
+
 	zf.write('module.xcconfig','%s/module.xcconfig' % modulepath)
 	exports_file = 'metadata.json'
 	if os.path.exists(exports_file):
 		zf.write(exports_file, '%s/%s' % (modulepath, exports_file))
 	zf.close()
 
+
 if __name__ == '__main__':
-	global options
-
-	parser = optparse.OptionParser()
-	parser.add_option("-s", "--skip-docs",
-			dest="skip_docs",
-			action="store_true",
-			help="Will skip building documentation in apidoc folder",
-			default=False)
-	(options, args) = parser.parse_args()
-
 	manifest,mf = validate_manifest()
 	validate_license()
 	config = read_ti_xcconfig()
@@ -269,5 +269,6 @@ if __name__ == '__main__':
 
 	compile_js(manifest,config)
 	build_module(manifest,config)
+	verify_build_arch(manifest, config)
 	package_module(manifest,mf,config)
 	sys.exit(0)
