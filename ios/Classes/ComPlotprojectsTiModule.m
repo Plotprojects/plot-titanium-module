@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Floating Market B.V.
+ * Copyright 2015 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,21 @@
 #import "TiUtils.h"
 #import "Plot.h"
 #import "ComPlotprojectsTiNotificationFilter.h"
+#import "ComPlotprojectsTiGeotriggerHandler.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 static BOOL plotInitialized = NO; //use static variable to prevent initializing Plot again
 static int filterIndex = 1;
 static BOOL enableNotificationFilter = NO;
+static int handlerIndex = 1;
+static BOOL enableGeotriggerHandler = NO;
 
 static NSMutableArray* notificationsToBeReceived = nil;
 static NSMutableArray* notificationsToFilter = nil;
 static NSMutableDictionary* notificationsBeingFiltered = nil;
+static NSMutableArray* geotriggersToHandle = nil;
+static NSMutableDictionary* geotriggersBeingHandled = nil;
 
 @implementation ComPlotprojectsTiModule
 
@@ -143,6 +148,11 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     if (notificationFilterEnabled != nil) {
         enableNotificationFilter = [notificationFilterEnabled boolValue];
     }
+
+    NSNumber* geotriggerHandlerEnabled = [args objectForKey:@"geotriggerHandlerEnabled"];
+    if (geotriggerHandlerEnabled != nil) {
+        enableGeotriggerHandler = [geotriggerHandlerEnabled boolValue];
+    }
     
     if  (!plotInitialized) {
         NSString* publicToken = [args objectForKey:@"publicToken"];
@@ -162,11 +172,16 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
         
         plotInitialized = YES;
         
+        NSDictionary* launchOptions = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"plot-use-file-config"];
+        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if ([@"test" isEqualToString:TI_APPLICATION_DEPLOYTYPE] || [@"development" isEqualToString:TI_APPLICATION_DEPLOYTYPE]) {
-            [PlotDebug initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+            [PlotDebug initializeWithConfiguration:config launchOptions:launchOptions];
         } else {
-            [PlotRelease initializeWithConfiguration:config launchOptions:[NSDictionary dictionary]];
+            [PlotRelease initializeWithConfiguration:config launchOptions:launchOptions];
         }
+#pragma clang diagnostic pop
         
         for (UILocalNotification* n in notificationsToBeReceived) {
             [Plot handleNotification:n];
@@ -287,6 +302,93 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     [filterNotifications release];
 }
 
+// Geotriggers
+-(NSDictionary*)popGeotriggers:(id)args {
+    NSMutableDictionary* result = [NSMutableDictionary dictionary];
+    [self performSelectorOnMainThread:@selector(popGeotriggersOnMainThread:) withObject:result waitUntilDone:YES];
+    return result;
+}
+
+-(void)popGeotriggersOnMainThread:(NSMutableDictionary*)result {
+    NSArray* geotriggers;
+    NSString* handlerId = @"";
+    if (geotriggersToHandle.count == 0u) {
+        geotriggers = @[];
+    } else {
+        PlotHandleGeotriggers* n = [[geotriggersToHandle objectAtIndex:0] retain];
+        [geotriggersToHandle removeObjectAtIndex:0];
+        
+        geotriggers = n.geotriggers;
+        handlerId = [NSString stringWithFormat:@"%d", handlerIndex++];
+        if (geotriggersBeingHandled == nil) {
+            geotriggersBeingHandled = [[NSMutableDictionary dictionary] retain];
+        }
+        [geotriggersBeingHandled setObject:n forKey:handlerId];
+        [n release];
+    }
+    
+    NSMutableArray* jsonGeotriggers = [NSMutableArray array];
+    for (PlotGeotrigger* geotrigger in geotriggers) {
+        [jsonGeotriggers addObject:[self geotriggerToDictionary:geotrigger]];
+    }
+    
+    [result setObject:handlerId forKey:@"handlerId"];
+    [result setObject:jsonGeotriggers forKey:@"geotriggers"];
+}
+
+-(NSDictionary*)indexGeotriggers:(NSArray*)geotriggers {
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithCapacity:geotriggers.count];
+    
+    for (PlotGeotrigger* geotrigger in geotriggers) {
+        NSString* identifier = [geotrigger.userInfo objectForKey:@"identifier"];
+        if (identifier != nil) {
+            [result setObject:geotrigger forKey:identifier];
+        }
+    }
+    
+    return result;
+}
+
+-(PlotGeotrigger*)transformGeotrigger:(NSDictionary*)data index:(NSDictionary*)index {
+    NSString* identifier = [data objectForKey:@"identifier"];
+    if (identifier == nil) {
+        return nil;
+    }
+    PlotGeotrigger* geotrigger = [index objectForKey:identifier];     
+    NSMutableDictionary* newUserInfo = [NSMutableDictionary dictionaryWithDictionary:geotrigger.userInfo];        
+    geotrigger.userInfo = newUserInfo;
+
+    return geotrigger;
+}
+
+-(void)markGeotriggersHandled:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    
+    NSString* handlerId = [args objectForKey:@"handlerId"];
+    NSArray* geotriggersPassed = [args objectForKey:@"geotriggers"];
+    if ([@"" isEqualToString:handlerId]) {
+        return;
+    }
+    
+    PlotHandleGeotriggers* geotriggerHandler = [[geotriggersBeingHandled objectForKey:handlerId] retain];
+    [geotriggersBeingHandled removeObjectForKey:handlerId];
+    
+    NSDictionary* index = [self indexGeotriggers:geotriggerHandler.geotriggers];
+    
+    NSMutableArray* result = [NSMutableArray array];
+    
+    for (NSDictionary* geotriggerData in geotriggersPassed) {
+        PlotGeotrigger* geotrigger = [self transformGeotrigger:geotriggerData index:index];
+        if (geotrigger != nil) {
+            [result addObject:geotrigger];
+        }
+    }
+    
+    [geotriggerHandler markGeotriggersHandled:result];
+    [geotriggerHandler release];
+}
+
 -(void)setCooldownPeriod:(int)period {
     [Plot setCooldownPeriod:period];
 }
@@ -314,6 +416,21 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     return eventNotification;
 }
 
+-(NSDictionary*)geotriggerToDictionary:(PlotGeotrigger*)geotrigger {
+    NSDictionary* eventGeotrigger = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerDataKey]], @"data",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerGeofenceLatitude]], @"geofenceLatitude",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerGeofenceLongitude]], @"geofenceLongitude",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerTrigger]], @"trigger",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerIsBeacon]], @"isBeacon",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerName]], @"name",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
+                                       nil];
+    
+    
+    return eventGeotrigger;
+}
+
 -(void)handleNotification:(UILocalNotification*)notification {
     if ([self _hasListeners:@"plotNotificationReceived"]) {
         NSDictionary* eventNotification = [self localNotificationToDictionary:notification];
@@ -338,9 +455,28 @@ static NSMutableDictionary* notificationsBeingFiltered = nil;
     }
 }
 
+-(void)plotHandleGeotriggers:(PlotHandleGeotriggers *)geotriggers {
+    if (enableGeotriggerHandler) {
+        if (geotriggersToHandle == nil) {
+            geotriggersToHandle = [[NSMutableArray array] retain];
+        }
+        [geotriggersToHandle addObject:geotriggers];
+        ComPlotprojectsTiGeotriggerHandler* handler = [[ComPlotprojectsTiGeotriggerHandler alloc] init];
+        [handler startHandler];
+        [self performSelector:@selector(shutdownHandler:) withObject:handler afterDelay:10];
+    } else {
+        [geotriggers markGeotriggersHandled:geotriggers.geotriggers];
+    }
+}
+
 -(void)shutdownFilter:(ComPlotprojectsTiNotificationFilter*)filter {
     [filter shutdown];
     [filter autorelease];
+}
+
+-(void)shutdownHandler:(ComPlotprojectsTiGeotriggerHandler*)handler {
+    [handler shutdown];
+    [handler autorelease];
 }
 
 @end

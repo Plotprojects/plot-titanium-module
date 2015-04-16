@@ -1,6 +1,6 @@
 Plot Appcelerator Titanium module
 =================================
-A module for Appcelerator Titanium apps that adds location based notifications to your app. iBeacon support in beta for iOS.
+A module for Appcelerator Titanium apps that adds location based notifications to your app.
 
 ### Supported platforms ###
 
@@ -14,10 +14,10 @@ Install our module by downloading our [latest release from releases](https://git
 The following snippet has to be added to one of your scripts used to initialize your application (usually app.js or alloy.js):
 ```
 var plot = require('com.plotprojects.ti');
-plot.initPlot({ publicToken: 'REPLACE_ME', notificationFilterEnabled: false });
+plot.initPlot({ notificationFilterEnabled: false });
 ```
 
-You can obtain the public token at: http://www.plotprojects.com/getourplugin/
+Create the configuration file assets/plotconfig.json. A default implementation including your public token can be obtained from https://admin.plotprojects.com (visit http://www.plotprojects.com/getourplugin/ to create a free account).
 
 When your app also targets IOS, then it is also required to specify why your app requires location services. You do that in your plist. Add the following lines to _tiApp.xml_ at the _ios/plist/dict_ element:
 ```
@@ -38,13 +38,15 @@ The _config_ parameter is an object and may have the following properties:
 
 <table>
 <tr>
-<td>publicToken</td><td>Your public token (required)</td>
+<td>publicToken</td><td>Your public token <em>Deprecated, use configuration file instead</em></td>
 </tr><tr>
-<td>cooldownPeriod</td><td>The cooldown period between notifications in seconds. (default disabled)</td>
+<td>cooldownPeriod</td><td>The cooldown period between notifications in seconds. (default disabled) <em>Deprecated, use setCooldownPeriod() instead</em></td>
 </tr><tr>
-<td>enableOnFirstRun</td><td>Whether Plot should be automatically enabled on the first run (default true)</td>
+<td>enableOnFirstRun</td><td>Whether Plot should be automatically enabled on the first run (default true) <em>Deprecated, use configuration file instead</em></td>
 </tr><tr>
 <td>notificationFilterEnabled</td><td>Whether the notification filter should be enabled. See section about <a href="#notification-filter">Notification Filter</a> for more information. (default disabled)</td>
+</tr><tr>
+<td>geotriggerHandlerEnabled</td><td>Whether the geotrigger handler should be enabled. See section about <a href="#geotrigger-handler">Geotrigger Handler</a> for more information. (default disabled)</td>
 </tr>
 </table>
 
@@ -80,6 +82,14 @@ _plot.mailDebugLog()_
 
 Sends the collected debug log via mail. It will open your mail application to send the mail.
 
+_plot.popGeotriggers()_
+
+Returns an object which contains the geotriggers that can be handled. The geotriggers are in the _geotriggers_ property. All properties are read-only. Only to be called from the Geotrigger Handler.
+
+_plot.markGeoTriggersHandled(geotriggers)_
+
+Sends the handled geotriggers obtained from popGeotriggers(). Only call this method once per call to popGeotriggers(). Only to be called from the Geotrigger Handler.
+
 ### Notification Filter ###
 
 The notification filter allows you to filter out or edit notifications before they are shown. To enable the notification filter, you add the property _notificationFilterEnabled_ with the value _true_ to object passed to initPlot. When the notification filter is disabled the notification filter script won't be executed and all notifications will shown.
@@ -97,13 +107,43 @@ Ti.API.info('Notification Filter. Plot version: ' + plot.version);
 var filterableNotifications = plot.popFilterableNotifications();
 
 for (var i = 0; i < filterableNotifications.notifications.length; i++) {
-	var n = filterableNotifications.notifications[i];
-	n.message = "TestMessage: " + n.message;
-	n.data = "Test123: " + n.data;
+    var n = filterableNotifications.notifications[i];
+    n.message = "TestMessage: " + n.message;
+    n.data = "Test123: " + n.data;
 }
 
 //always call plot.sendNotifications function, even if filterableNotifications.notifications becomes empty 
 plot.sendNotifications(filterableNotifications); 
+```
+
+### Geotrigger Handler ###
+
+When you want to handle your geotriggers, or use them as trigger events for your own code, you can use the geotrigger handler. To enable the geotrigger handler, you add the property _geotriggerHandlerEnabled_ with the value _true_ to object passed to initPlot. When the geotrigger handler is disabled all geotriggers will be counted as handled.
+
+You define the handler in _assets/plotgeotriggerhandler.js_. When Plot detects that a geotrigger has triggered, it executes the script. The script runs in a different context than the normal scripts are executed. Therefore you cannot reference views or global variables from the geotrigger handler.
+
+You can remove geotriggers from the array you don't want to mark as handled. Always call _plot.popGeotriggers()_ and _plot.markGeoTriggersHandled(geotriggers)_.
+
+An example for _assets/plotgeotriggerhandler.js_:
+```
+var plot = require('com.plotprojects.ti');
+
+Ti.API.info('Plot version: ' + plot.version);
+
+var geotriggersHandler = plot.popGeotriggers();
+var geotriggersPassed = [];
+
+for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
+    var geotrigger = geotriggersHandler.geotriggers[i];
+    if (geotrigger.data == "pass") {
+        geotriggersPassed.push(geotrigger);
+    }
+
+    Ti.API.info(JSON.stringify(geotrigger));
+}
+
+//always call plot.markGeoTriggersHandled function, even if geotriggersHandler.geotriggers becomes empty
+plot.markGeoTriggersHandled(geotriggersPassed);
 ```
 
 ### More information ###

@@ -1,6 +1,6 @@
-<project name="plot-android-module" default="dist">
+<project name="plot-plugin-module" default="dist">
 	<description>
-		Ant build script for Titanium Android module plot-android-module
+		Ant build script for Titanium Android module plot-plugin-module
 	</description>
 
 	<property name="ti.module.root" location="${basedir}"/>

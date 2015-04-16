@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Floating Market B.V.
+ * Copyright 2015 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.plotprojects.retail.android.FilterableNotification;
+import com.plotprojects.retail.android.Geotrigger;
 import com.plotprojects.retail.android.OpenUriReceiver;
 import com.plotprojects.retail.android.Plot;
 import com.plotprojects.retail.android.PlotConfiguration;
 import com.plotprojects.titanium.NotificationBatches.NotificationsAndId;
+import com.plotprojects.titanium.GeotriggerBatches.GeotriggersAndId;
 
 @Kroll.module(name="PlotAndroidModule", id="com.plotprojects.ti")
 @SuppressWarnings("rawtypes") //required for Kroll
@@ -43,6 +45,7 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 	private static final String COOLDOWN_PERIOD_FIELD = "cooldownPeriod";
 	private static final String PUBLIC_TOKEN_FIELD = "publicToken";
 	private static final String NOTICATION_FILTER_ENABLED = "notificationFilterEnabled";
+	private static final String GEOTRIGGER_HANDLER_ENABLED = "geotriggerHandlerEnabled";
 	private static final String NOTIFICATION_RECEIVED_EVENT = "plotNotificationReceived";
 
 	@Kroll.onAppCreate
@@ -78,13 +81,12 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 		if (hasListeners(NOTIFICATION_RECEIVED_EVENT)) {
 			Log.i("PlotAndroidModule", "Opening for listener");
 			// Convert notification to map
-			Map<String, Object> jsonNotification = NotificationJsonUtil.notificationToMap(notification);
+			Map<String, Object> jsonNotification = JsonUtil.notificationToMap(notification);
 			fireEvent(NOTIFICATION_RECEIVED_EVENT, jsonNotification);
 		} else {
-			Log.e("PlotAndroidModule", "Opening URI: " + notification.getData());
-			if (notification.getData() == null)
+			if (notification.getData() == null) {
 				return;
-
+			}
 			try {
 				Context appContext = TiApplication.getInstance().getApplicationContext();
 				Intent openBrowserIntent = new Intent(appContext, OpenUriReceiver.class);
@@ -107,14 +109,6 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 			throw new IllegalArgumentException("No configuration object provided.");
 		}
 
-		if (!configuration.containsKey(PUBLIC_TOKEN_FIELD)) {
-			throw new IllegalArgumentException("Public token not specified.");
-		}
-
-		if (!(configuration.get(PUBLIC_TOKEN_FIELD) instanceof String)) {
-			throw new IllegalArgumentException("Public key not specified correctly.");
-		}
-		
 		if (configuration.containsKey(NOTICATION_FILTER_ENABLED) && !(configuration.get(NOTICATION_FILTER_ENABLED) instanceof Boolean)) {
 			throw new IllegalArgumentException("NotificationFilterEnabled not specified correctly.");
 		} 
@@ -122,7 +116,31 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 			SettingsUtil.setNotificationFilterEnabled((Boolean) configuration.get(NOTICATION_FILTER_ENABLED)); 
 		}
 
-		PlotConfiguration config = new PlotConfiguration((String) configuration.get(PUBLIC_TOKEN_FIELD));
+		if (configuration.containsKey(GEOTRIGGER_HANDLER_ENABLED) && !(configuration.get(GEOTRIGGER_HANDLER_ENABLED) instanceof Boolean)) {
+			throw new IllegalArgumentException("GeotriggerHandlerEnabled not specified correctly.");
+		}
+		if (configuration.containsKey(GEOTRIGGER_HANDLER_ENABLED)) {
+			SettingsUtil.setGeotriggerHandlerEnabled((Boolean) configuration.get(GEOTRIGGER_HANDLER_ENABLED));
+		}
+
+    NotificationQueue.setListener(this);
+
+		if (!configuration.containsKey(PUBLIC_TOKEN_FIELD)) {
+			Plot.init(activity);
+		} else {
+      initPlotWithConfiguration(configuration, activity);
+    }
+		
+		handleNotifications();
+	}
+
+  @SuppressWarnings("deprecation") // Plot.init with a config is deprecated... we know this
+  private void initPlotWithConfiguration(HashMap configuration, Activity activity) {
+    if (!(configuration.get(PUBLIC_TOKEN_FIELD) instanceof String)) {
+			throw new IllegalArgumentException("Public key not specified correctly.");
+		}
+		
+ 		PlotConfiguration config = new PlotConfiguration((String) configuration.get(PUBLIC_TOKEN_FIELD));
 
 		if (configuration.containsKey(COOLDOWN_PERIOD_FIELD) && !(configuration.get(COOLDOWN_PERIOD_FIELD) instanceof Integer)) {
 			throw new IllegalArgumentException("Cooldown period not specified correctly.");
@@ -137,12 +155,9 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 		else if (configuration.containsKey(ENABLE_ON_FIRST_RUN_FIELD)) {
 			config.setEnableOnFirstRun((Boolean) configuration.get(ENABLE_ON_FIRST_RUN_FIELD));
 		}
-		NotificationQueue.setListener(this);
+		
 		Plot.init(activity, config);
-		
-		handleNotifications();
-		
-	}
+  }
 
 	@Kroll.method
 	public void enable() {
@@ -180,7 +195,7 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 
 		HashMap<String, Object> result = new HashMap<String, Object>();
 		result.put("filterId", notificationsAndId.getId());
-		result.put("notifications", NotificationJsonUtil.notificationsToMap(notificationsAndId.getNotifications()));
+		result.put("notifications", JsonUtil.notificationsToMap(notificationsAndId.getNotifications()));
 		return result;
 	}
 	
@@ -190,7 +205,27 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 		List<FilterableNotification> notifications = NotificationBatches.getBatch(filterId);
 		
 		Object[] jsonNotifications = (Object[]) batch.get("notifications");
-		List<FilterableNotification> notificationsToSend = NotificationJsonUtil.getNotifications(jsonNotifications, notifications);
+		List<FilterableNotification> notificationsToSend = JsonUtil.getNotifications(jsonNotifications, notifications);
 		NotificationBatches.sendBatch(filterId, notificationsToSend);
+	}
+
+	@Kroll.method
+	public HashMap popGeotriggers() {
+		GeotriggersAndId geotriggersAndId = GeotriggerBatches.popBatch();
+
+		HashMap<String, Object> result = new HashMap<String, Object>();
+		result.put("handlerId", geotriggersAndId.getId());
+		result.put("geotriggers", JsonUtil.geotriggersToMap(geotriggersAndId.getGeotriggers()));
+		return result;
+	}
+
+	@Kroll.method
+	public void markGeotriggersHandled(HashMap batch) {
+		String handlerId = (String) batch.get("handlerId");
+		List<Geotrigger> geotriggers = GeotriggerBatches.getBatch(handlerId);
+
+		Object[] jsonGeotriggers = (Object[]) batch.get("geotriggers");
+		List<Geotrigger> geotriggersHandled = JsonUtil.getGeotriggers(jsonGeotriggers, geotriggers);
+		GeotriggerBatches.sendBatch(handlerId, geotriggersHandled);
 	}
 }

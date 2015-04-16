@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Floating Market B.V.
+ * Copyright 2015 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,18 @@ public final class SettingsUtil {
 		SharedPreferences sharedPreferences = getSharedPreferences();
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean("notificationfilter", enabled);
+		editor.commit();
+	}	
+
+	public static boolean isGeotriggerHandlerEnabled() {
+		SharedPreferences sharedPreferences = getSharedPreferences();
+		return sharedPreferences.getBoolean("geotriggerhandler", false);
+	}
+
+	public static void setGeotriggerHandlerEnabled(boolean enabled) {
+		SharedPreferences sharedPreferences = getSharedPreferences();
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean("geotriggerhandler", enabled);
 		editor.commit();
 	}	
 }

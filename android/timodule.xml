@@ -11,7 +11,7 @@
 			<uses-permission android:name="android.permission.VIBRATE"/>
 			<application>
 				<activity android:name="com.plotprojects.retail.android.LandingPageActivity"
-                  android:configChanges="orientation|screenSize" />
+                  android:configChanges="orientation|screenSize" android:exported="false" />
                   
 				<receiver android:name="com.plotprojects.retail.android.PlotBootReceiver">
   					<intent-filter>
@@ -29,7 +29,8 @@
 				</receiver>
 				<receiver android:exported="false" android:name="com.plotprojects.retail.android.OpenUriReceiver" />
 				<service android:name="com.plotprojects.titanium.NotificationFilterService" android:exported="false" />
-				<service android:name="com.plotprojects.retail.android.PlotBackgroundService">
+				<service android:name="com.plotprojects.titanium.GeotriggerHandlerService" android:exported="false" />
+				<service android:name="com.plotprojects.retail.android.PlotBackgroundService" android:exported="false">
     				<meta-data android:name="debug" android:value="false" />
 				</service>
 				

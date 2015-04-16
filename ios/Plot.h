@@ -2,7 +2,7 @@
 //  Plot.h
 //  Plot
 //
-//  Copyright (c) 2014 Floating Market B.V. All rights reserved.
+//  Copyright (c) 2015 Floating Market B.V. All rights reserved.
 //
 
 /*! \mainpage IOS Plugin Documentation
@@ -16,7 +16,7 @@
 
 @class UIViewController;
 
-/**
+/** 
  * \memberof Plot
  * Key for userInfo properties in UILocalNotifications created by Plot.
  */
@@ -48,7 +48,7 @@ extern NSString* const PlotNotificationIsAppInForegroundKey;
 
 /**
  * \memberof Plot
- * The field of the userinfo in the local notification that contains whether the notification is triggered because of a geofence. The value is @"yes" when it is, else it contains @"no".
+ * The field of the userinfo in the local notification that contains whether the notification is triggered because of a beacon. The value is @"yes" when it is, else it contains @"no".
  */
 extern NSString* const PlotNotificationIsBeacon;
 
@@ -88,6 +88,61 @@ extern NSString* const PlotNotificationTriggerEnter;
  */
 extern NSString* const PlotNotificationTriggerExit;
 
+/**
+ * \memberof Plot
+ * Key for userInfo properties for geotriggers in UILocalNotifications created by Plot.
+ */
+extern NSString* const PlotGeotriggerIdentifier; //synonym for PlotNotificationIdentifier
+
+/**
+ * \memberof Plot
+ * Key for userInfo properties for geotriggers in UILocalNotifications created by Plot.
+ */
+extern NSString* const PlotGeotriggerName; //synonym for PlotNotificationMessage
+
+/**
+ * \memberof Plot
+ * The field of the userinfo in the geotrigger that contains the data for the action to be performed.
+ */
+extern NSString* const PlotGeotriggerDataKey; //synonym for PlotNotificationActionKey
+
+/**
+ * \memberof Plot
+ * The field of the userinfo in the geotrigger that contains whether the geotrigger is triggered because of a beacon. The value is @"yes" when it is, else it contains @"no".
+ */
+extern NSString* const PlotGeotriggerIsBeacon; //synonym for PlotNotificationIsBeacon
+
+/**
+ * \memberof Plot
+ * Geotrigger trigger identifier, used in user info. Same as NotificationTrigger but without the possibility of being dwelling.
+ */
+extern NSString* const PlotGeotriggerTrigger; //synonym for PlotNotificationTrigger
+
+/**
+ * \memberof Plot
+ * Geofence latitude identifier, used in user info.
+ */
+extern NSString* const PlotGeotriggerGeofenceLatitude; //synonym for PlotNotificationGeofenceLatitude
+
+/**
+ * \memberof Plot
+ * Geofence longitude identifier, used in user info.
+ */
+extern NSString* const PlotGeotriggerGeofenceLongitude; //synonym for PlotNotificationGeofenceLongitude
+
+/**
+ * \memberof Plot
+ * Constant for PlotGeotriggerTrigger, used on enter trigger event.
+ */
+extern NSString* const PlotGeotriggerTriggerEnter; //synonym for PlotNotificationTriggerEnter
+
+/**
+ * \memberof Plot
+ * Constant for PlotGeotriggerTrigger, used on exit trigger event.
+ */
+extern NSString* const PlotGeotriggerTriggerExit; //synonym for PlotNotificationTriggerExit
+
+
 @protocol PlotDelegate;
 
 @class UILocalNotification;
@@ -115,6 +170,41 @@ extern NSString* const PlotNotificationTriggerExit;
 
 @end
 
+/**
+ * Represents a geotrigger, which is a notification used for smoketesting geofencing without showing a notification message. Has to be used inside the geotrigger handler.
+ */
+@interface PlotGeotrigger : NSObject
+
+/** Equivalent of the userInfo for a UILocalNotification, use geotrigger keys to retrieve values of the geotrigger.
+ */
+@property (nonatomic, copy) NSDictionary *userInfo;
+
++(instancetype)initializeWithUserInfo:(NSDictionary*)userInfo;
+
+@end
+
+/**
+ * Represents a geotrigger handler, which handles geotriggers just before or after handling. You can handle the geotrigger by using the Geotrigger Handler (plotHandleGeotriggers).
+ */
+@interface PlotHandleGeotriggers : NSObject
+
+/** All geotriggers that are within the radius of the geofence. The type of the objects in the array is PlotGeotrigger*.
+ */
+@property (strong, nonatomic, readonly) NSArray* geotriggers;
+
+/** Call this method after handling the geotriggers in your custom geotriggers handler.
+ */
+-(void)markGeotriggersHandled:(NSArray*)geotriggers;
+
+/**
+ * Utility method that helps you test your geotrigger handler. Returns the geotriggers your handler would return (handled geotriggers).
+ * @param geotriggers geotriggers to pass to your delegate. The elements must be of type PlotGeotrigger.
+ * @param delegate the delegate to test.
+ */
++(NSArray*)testHandleGeotriggers:(NSArray*)geotriggers delegate:(id<PlotDelegate>)delegate;
+
+@end
+
 /** The plot delegate which is used in this plot app.
  */
 @protocol PlotDelegate <NSObject>
@@ -131,6 +221,12 @@ extern NSString* const PlotNotificationTriggerExit;
  */
 @optional
 -(void)plotFilterNotifications:(PlotFilterNotifications*)filterNotifications;
+
+/** Implement this method if you want to handle geotriggers. If you want geotriggers to use cooldowns etc, call [geotriggerHandler markGeoTriggersHandled:geotriggers]. Please note that geotriggers that have not been passed on this way can be triggered again later eventhough they are not resendable.
+ * @param geotriggerHandler
+ */
+@optional
+-(void)plotHandleGeotriggers:(PlotHandleGeotriggers*)geotriggerHandler;
 
 @end
 
@@ -169,8 +265,8 @@ extern NSString* const PlotNotificationTriggerExit;
 @end
 
 /**
- * The main methods to control the beheavior of Plot.
- */
+  * The main methods to control the beheavior of Plot.
+  */
 @interface PlotBase : NSObject
 
 /**
@@ -183,8 +279,8 @@ extern NSString* const PlotNotificationTriggerExit;
 
 /**
  * \deprecated
- * Before you can make use of the other functionality within Plot, you have to call an initialization method (initializeWithConfiguration:launchOptions: is preferred).
- * Normally you want to call this method inside -(BOOL)application:didFinishLaunchingWithOptions:. If the Plot library was enabled last time, it will be enabled again.
+ * Before you can make use of the other functionality within Plot, you have to call an initialization method (initializeWithLaunchOptions:delegate: is preferred).
+ * Normally you want to call this method inside -(BOOL)application:didFinishLaunchingWithOptions:.
  * When the app is launched because the user tapped on a notification, then that notification will be opened.
  * @param key Public key from plot projects used to identify your app.
  * @param launchOptions Specific options used on launch, can be used to pass options as user.
@@ -192,17 +288,31 @@ extern NSString* const PlotNotificationTriggerExit;
  */
 +(void)initializeWithPublicKey:(NSString*)key launchOptions:(NSDictionary *)launchOptions delegate:(id<PlotDelegate>)delegate __attribute__((deprecated));
 
-/** Before you can make use of the other functionality within Plot, you have to call an initialization method (this one is preferred). The parameters for Plot are passed through a configuration object. Normally you want to call this method inside -(BOOL)application:didFinishLaunchingWithOptions:. If the Plot library was enabled last time, it will be enabled again. When the app is launched because the user tapped on a notification, then that notification will be opened.
+/**
+ * \deprecated
+ * Before you can make use of the other functionality within Plot, you have to call an initialization method. The parameters for Plot are passed through a configuration object. Normally you want to call this method inside -(BOOL)application:didFinishLaunchingWithOptions:.
+ * When the app is launched because the user tapped on a notification, then that notification will be opened.
  * @param configuration Configuration of the app.
  * @param launchOptions Specific options used on launch, can be used to pass options as user.
  */
-+(void)initializeWithConfiguration:(PlotConfiguration*)configuration launchOptions:(NSDictionary *)launchOptions;
++(void)initializeWithConfiguration:(PlotConfiguration*)configuration launchOptions:(NSDictionary *)launchOptions __attribute__((deprecated));
 
-/** Enables the functionality of the Plot library. When the user hasn’t consented to the use of location services, he will be asked at this point.
+
+/** 
+ * Before you can make use of the other functionality within Plot, you have to call an initialization method (this one is preferred). It will read the configuration from the config file (plotconfig.json), please make sure this file is defined. Normally you want to call this method inside -(BOOL)application:didFinishLaunchingWithOptions:.
+ * When the app is launched because the user tapped on a notification, then that notification will be opened.
+ * @param launchOptions Specific options used on launch, can be used to pass options as user.
+ * @param delegate Plot delegate used.
+ */
++(void)initializeWithLaunchOptions:(NSDictionary *)launchOptions delegate:(id<PlotDelegate>)delegate;
+
+/** Enables the functionality of the Plot library until disable() is called. When the user hasn’t consented to the use of location services, he will be asked at this point. Even when the device or your app is restarted the Plot library continues to work. The intended use case is to provide users with an opt-in.<br>
+ *  <br>
+ *  Please note that the default configuration enables Plot automatically on the first run. <b>With the default configuration you do not have to call this method yourself.</b>
  */
 +(void)enable;
 
-/** Disables the functionality of the Plot library. The library will no longer send notifications to the user.
+/** Disables the functionality of the Plot library. The library will no longer send notifications to the user until enable() is called. The intended use case is to provide users with an opt-out.
  */
 +(void)disable;
 
@@ -243,6 +353,48 @@ extern NSString* const PlotNotificationTriggerExit;
  * @param viewController viewController to place the mail view on top of
  */
 +(void)mailDebugLog:(UIViewController*)viewController;
+
+/**
+ * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * @param value
+ * @param propertyKey
+ */
++(void)setStringSegmentationProperty:(NSString*)value forKey:(NSString*)propertyKey;
+
+/**
+ * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * @param value
+ * @param propertyKey
+ */
++(void)setBooleanSegmentationProperty:(BOOL)value forKey:(NSString*)propertyKey;
+
+/**
+ * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * @param value
+ * @param propertyKey
+ */
++(void)setIntegerSegmentationProperty:(long long)value forKey:(NSString*)propertyKey;
+
+/**
+ * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * @param value
+ * @param propertyKey
+ */
++(void)setDoubleSegmentationProperty:(double)value forKey:(NSString*)propertyKey;
+
+/**
+ * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * @param value
+ * @param propertyKey
+ */
++(void)setDateSegmentationProperty:(NSDate*)value forKey:(NSString*)propertyKey;
+
+/**
+ * Sets the advertising identifier for the device. Please consult our documentation for the implications of using this feature.
+ * @param advertisingIdentifier
+ * @param advertisingTrackingEnabled
+ */
++(void)setAdvertisingIdentifier:(NSUUID*)advertisingIdentifier advertisingTrackingEnabled:(BOOL)advertisingTrackingEnabled;
 
 @end
 
