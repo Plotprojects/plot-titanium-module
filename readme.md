@@ -33,7 +33,7 @@ Allows specifying your own handler when a notification is opened by the user. Th
 
 _plot.initPlot(config)_
 
-Initializes Plot. You must call this method before calling other methods other than the notification handler Plot provides.
+Initializes Plot. You must call this method before calling other methods other than the notification handler Plot provides. Please note that initialization is asynchronous. Any other calls to the Plot library should wait at least 1000 ms (e.g. use setTimeout).
 The _config_ parameter is an object and may have the following properties:
 
 <table>
@@ -89,6 +89,26 @@ Returns an object which contains the geotriggers that can be handled. The geotri
 _plot.markGeoTriggersHandled(geotriggers)_
 
 Sends the handled geotriggers obtained from popGeotriggers(). Only call this method once per call to popGeotriggers(). Only to be called from the Geotrigger Handler.
+
+_plot.setStringSegmentationProperty(property, value)_
+
+Sets a string property for the device on which notifications can be segmented.
+
+_plot.setBooleanSegmentationProperty(property, value)_
+
+Sets a boolean property for the device on which notifications can be segmented.
+
+_plot.setIntegerSegmentationProperty(property, value)_
+
+Sets an integer property for the device on which notifications can be segmented.
+
+_plot.setDoubleSegmentationProperty(property, value)_
+
+Sets a double property for the device on which notifications can be segmented.
+
+_plot.setDateSegmentationProperty(property, value)_
+
+Sets a date property for the device on which notifications can be segmented.
 
 ### Notification Filter ###
 
