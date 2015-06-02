@@ -204,6 +204,68 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     return [Plot isEnabled];
 }
 
+-(void)setStringSegmentationProperty:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    
+    NSString* key = nil;
+    ENSURE_ARG_AT_INDEX(key, args, 0, NSString);
+    
+    NSString* value = nil;
+    ENSURE_ARG_AT_INDEX(value, args, 1, NSString);
+    
+    [Plot setStringSegmentationProperty:value forKey:key];
+}
+
+-(void)setBooleanSegmentationProperty:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    
+    NSString* key = nil;
+    ENSURE_ARG_AT_INDEX(key, args, 0, NSString);
+    
+    NSNumber* value = nil;
+    ENSURE_ARG_AT_INDEX(value, args, 1, NSNumber);
+    
+    [Plot setBooleanSegmentationProperty:[value boolValue] forKey:key];
+}
+
+-(void)setIntegerSegmentationProperty:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    
+    NSString* key = nil;
+    ENSURE_ARG_AT_INDEX(key, args, 0, NSString);
+    
+    NSNumber* value = nil;
+    ENSURE_ARG_AT_INDEX(value, args, 1, NSNumber);
+    
+    [Plot setIntegerSegmentationProperty:[value longLongValue] forKey:key];
+}
+
+-(void)setDoubleSegmentationProperty:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    
+    NSString* key = nil;
+    ENSURE_ARG_AT_INDEX(key, args, 0, NSString);
+    
+    NSNumber* value = nil;
+    ENSURE_ARG_AT_INDEX(value, args, 1, NSNumber);
+    
+    NSLog(@"%@", value);
+    
+    [Plot setDoubleSegmentationProperty:[value doubleValue] forKey:key];
+}
+
+-(void)setDateSegmentationProperty:(id)args {
+    ENSURE_UI_THREAD_1_ARG(args);
+    
+    NSString* key = nil;
+    ENSURE_ARG_AT_INDEX(key, args, 0, NSString);
+    
+    NSDate* value = nil;
+    ENSURE_ARG_AT_INDEX(value, args, 1, NSDate);
+    
+    [Plot setDateSegmentationProperty:value forKey:key];
+}
+
 -(void)mailDebugLog:(id)args {
     ENSURE_UI_THREAD_0_ARGS
     
