@@ -16,6 +16,7 @@
 
 package com.plotprojects.titanium;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,4 +229,30 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
 		List<Geotrigger> geotriggersHandled = JsonUtil.getGeotriggers(jsonGeotriggers, geotriggers);
 		GeotriggerBatches.sendBatch(handlerId, geotriggersHandled);
 	}
+
+  @Kroll.method
+  public void setStringSegmentationProperty(String property, String value) {
+    Plot.setStringSegmentationProperty(property, value);
+  }
+
+  @Kroll.method
+  public void setBooleanSegmentationProperty(String property, boolean value) {
+    Plot.setBooleanSegmentationProperty(property, value);
+  }
+
+  @Kroll.method
+  public void setIntegerSegmentationProperty(String property, int value) {
+    Plot.setLongSegmentationProperty(property, value);
+  }
+
+  @Kroll.method
+  public void setDoubleSegmentationProperty(String property, double value) {
+    Plot.setDoubleSegmentationProperty(property, value);
+  }
+
+  @Kroll.method
+  public void setDateSegmentationProperty(String property, Date value) {
+    Plot.setDateSegmentationProperty(property, value.getTime() / 1000);
+  }
+
 }
