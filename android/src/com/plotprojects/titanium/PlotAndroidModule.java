@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
@@ -31,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.plotprojects.retail.android.NotificationTrigger;
 import com.plotprojects.retail.android.FilterableNotification;
 import com.plotprojects.retail.android.Geotrigger;
 import com.plotprojects.retail.android.OpenUriReceiver;
@@ -253,6 +256,16 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
   @Kroll.method
   public void setDateSegmentationProperty(String property, Date value) {
     Plot.setDateSegmentationProperty(property, value.getTime() / 1000);
+  }
+  
+  @Kroll.getProperty @Kroll.method
+  public HashMap[] getLoadedNotifications() {
+  	return JsonUtil.notificationTriggersToMap(new ArrayList(Plot.getLoadedNotifications()));
+  }
+  
+  @Kroll.getProperty @Kroll.method
+  public HashMap[] getLoadedGeotriggers() {
+  	return JsonUtil.geotriggersToMap(new ArrayList(Plot.getLoadedGeotriggers()));
   }
 
 }

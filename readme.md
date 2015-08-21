@@ -166,6 +166,22 @@ for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
 plot.markGeoTriggersHandled(geotriggersPassed);
 ```
 
+### Retrieve cached notifications or geotriggers ###
+
+It is possible to retrieve the list of notifications and geotriggers the Plot library is currently listening to. You can, for example, use this to show the user what is near him. This can also be used to see what Plot has loaded for debugging purposes.
+
+You can call _plot.getLoadedNotifications()_ to retrieve the notifications, and call _plot.getLoadedGeotriggers()_ to retrieve the geotriggers.
+
+Please note that this is an optional feature and not needed in order for the Plot library to work.
+ 
+An example implementation would be
+```
+var plot = require('com.plotprojects.ti');
+
+var cachedNotifications = plot.getLoadedNotifications();
+var cachedGeotriggers = plot.getLoadedGeotriggers();
+```
+
 ### More information ###
 Website: http://www.plotprojects.com/
 

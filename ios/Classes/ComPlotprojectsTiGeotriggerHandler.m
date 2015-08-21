@@ -17,6 +17,7 @@
  * and licensed under the Apache Public License (version 2)
  */
 
+#import <UIKit/UIKit.h>
 #import "ComPlotprojectsTiGeotriggerHandler.h"
 #import "TiUtils.h"
 #import "TiApp.h"

@@ -16,7 +16,7 @@
  * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * and licensed under the Apache Public License (version 2)
  */
-
+#import <UIKit/UIKit.h>
 #import "ComPlotprojectsTiNotificationFilter.h"
 #import "TiUtils.h"
 #import "TiApp.h"
