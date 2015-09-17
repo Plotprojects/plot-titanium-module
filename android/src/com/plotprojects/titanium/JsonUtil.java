@@ -21,8 +21,9 @@ import android.util.Log;
 
 import com.plotprojects.retail.android.FilterableNotification;
 import com.plotprojects.retail.android.Geotrigger;
+import com.plotprojects.retail.android.NotificationTrigger;
 
-@SuppressWarnings( "unchecked") //required for Kroll
+@SuppressWarnings("unchecked") //required for Kroll
 public final class JsonUtil {
 	private final static String LOG_TAG = "PLOT/Titanium";
 	
@@ -34,6 +35,7 @@ public final class JsonUtil {
 	private final static String KEY_TRIGGER = "trigger";
 	private final static String KEY_DWELLING_MINUTES = "dwellingMinutes";
 	private final static String KEY_NAME = "name";
+	private final static String KEY_MATCH_RANGE = "matchRange";
 	
 	public static HashMap<String, Object> notificationToMap(FilterableNotification notification) {
 		HashMap<String, Object> jsonNotification = new HashMap<String, Object>();
@@ -44,6 +46,7 @@ public final class JsonUtil {
 		jsonNotification.put(KEY_GEOFENCE_LONGITUDE, notification.getGeofenceLongitude());
 		jsonNotification.put(KEY_TRIGGER, notification.getTrigger());
 		jsonNotification.put(KEY_DWELLING_MINUTES, notification.getDwellingMinutes());
+		jsonNotification.put(KEY_MATCH_RANGE, notification.getMatchRange());
 		return jsonNotification;
 	}
 	
@@ -100,6 +103,7 @@ public final class JsonUtil {
 		jsonGeotrigger.put(KEY_GEOFENCE_LONGITUDE, geotrigger.getGeofenceLongitude());
 		jsonGeotrigger.put(KEY_TRIGGER, geotrigger.getTrigger());
 		jsonGeotrigger.put(KEY_DWELLING_MINUTES, geotrigger.getDwellingMinutes());
+		jsonGeotrigger.put(KEY_MATCH_RANGE, geotrigger.getMatchRange());
 		return jsonGeotrigger;
 	}
 	
@@ -143,4 +147,29 @@ public final class JsonUtil {
 		
 		return result;
 	}
+
+
+	public static HashMap<String, Object> notificationTriggerToMap(NotificationTrigger notification) {
+		HashMap<String, Object> jsonNotification = new HashMap<String, Object>();
+		jsonNotification.put(KEY_ID, notification.getId());
+		jsonNotification.put(KEY_MESSAGE, notification.getMessage());
+		jsonNotification.put(KEY_DATA, notification.getData());
+		jsonNotification.put(KEY_GEOFENCE_LATITUDE, notification.getGeofenceLatitude());
+		jsonNotification.put(KEY_GEOFENCE_LONGITUDE, notification.getGeofenceLongitude());
+		jsonNotification.put(KEY_TRIGGER, notification.getTrigger());
+		jsonNotification.put(KEY_DWELLING_MINUTES, notification.getDwellingMinutes());
+		jsonNotification.put(KEY_MATCH_RANGE, notification.getMatchRange());
+		return jsonNotification;
+	}
+	
+	public static HashMap<String, Object>[] notificationTriggersToMap(List<NotificationTrigger> notifications) {
+		HashMap<String, Object>[] result = new HashMap[notifications.size()];
+		int i = 0;
+		for (NotificationTrigger notification : notifications) {
+			result[i] = notificationTriggerToMap(notification);
+			i++;
+		}
+		return result;
+	}
+	
 }

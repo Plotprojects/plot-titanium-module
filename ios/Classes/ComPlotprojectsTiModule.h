@@ -19,7 +19,5 @@
 #import "TiModule.h"
 #import "Plot.h"
 
-
-
 @interface ComPlotprojectsTiModule : TiModule<PlotDelegate> 
 @end

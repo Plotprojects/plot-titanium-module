@@ -29,7 +29,7 @@ When your app also targets IOS, then it is also required to specify why your app
 
 _plot.addEventListener("plotNotificationReceived", func)_
 
-Allows specifying your own handler when a notification is opened by the user. The function is passed a notification object, which has the fields "message", "data" and "identifier". When no listener is added, then the "data" field will be treated as URI and opened.
+Allows specifying your own handler when a notification is opened by the user. The function is passed a notification object, which has the fields "message", "data" and "identifier". When no listener is added, then the "data" field will be treated as URI and opened. **Be sure to call this method before _plotInit_ is called.**
 
 _plot.initPlot(config)_
 
@@ -164,6 +164,22 @@ for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
 
 //always call plot.markGeoTriggersHandled function, even if geotriggersHandler.geotriggers becomes empty
 plot.markGeoTriggersHandled(geotriggersPassed);
+```
+
+### Retrieve cached notifications or geotriggers ###
+
+It is possible to retrieve the list of notifications and geotriggers the Plot library is currently listening to. You can, for example, use this to show the user what is near him. This can also be used to see what Plot has loaded for debugging purposes.
+
+You can call _plot.getLoadedNotifications()_ to retrieve the notifications, and call _plot.getLoadedGeotriggers()_ to retrieve the geotriggers.
+
+Please note that this is an optional feature and not needed in order for the Plot library to work.
+ 
+An example implementation would be
+```
+var plot = require('com.plotprojects.ti');
+
+var cachedNotifications = plot.getLoadedNotifications();
+var cachedGeotriggers = plot.getLoadedGeotriggers();
 ```
 
 ### More information ###

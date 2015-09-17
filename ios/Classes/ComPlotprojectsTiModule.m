@@ -16,6 +16,7 @@
  * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * and licensed under the Apache Public License (version 2)
  */
+#import <UIKit/UIKit.h>
 #import "ComPlotprojectsTiModule.h"
 #import "TiBase.h"
 #import "TiHost.h"
@@ -472,6 +473,7 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
                                        [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationIsBeacon]], @"isBeacon",
                                        [self nilToNSNull:notification.alertBody], @"message",
                                        [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
+                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationMatchRange]], @"matchRange",
                                        nil];
     
     
@@ -486,7 +488,8 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
                                        [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerTrigger]], @"trigger",
                                        [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerIsBeacon]], @"isBeacon",
                                        [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerName]], @"name",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerIdentifier]], @"identifier",
+                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerMatchRange]], @"matchRange",
                                        nil];
     
     
@@ -529,6 +532,24 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     } else {
         [geotriggers markGeotriggersHandled:geotriggers.geotriggers];
     }
+}
+
+-(NSArray*)getLoadedNotifications:(id)args {
+	NSArray* notifications = [Plot loadedNotifications];
+    NSMutableArray* jsonNotifications = [NSMutableArray array];
+    for (UILocalNotification* localNotification in notifications) {
+        [jsonNotifications addObject:[self localNotificationToDictionary:localNotification]];
+    }
+	return jsonNotifications;
+}
+
+-(NSArray*)getLoadedGeotriggers:(id)args {
+	NSArray* geotriggers = [Plot loadedGeotriggers];
+	NSMutableArray* jsonGeotriggers = [NSMutableArray array];
+    for (PlotGeotrigger* geotrigger in geotriggers) {
+        [jsonGeotriggers addObject:[self geotriggerToDictionary:geotrigger]];
+    }
+	return jsonGeotriggers;
 }
 
 -(void)shutdownFilter:(ComPlotprojectsTiNotificationFilter*)filter {
