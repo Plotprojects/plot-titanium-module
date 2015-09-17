@@ -29,7 +29,7 @@ When your app also targets IOS, then it is also required to specify why your app
 
 _plot.addEventListener("plotNotificationReceived", func)_
 
-Allows specifying your own handler when a notification is opened by the user. The function is passed a notification object, which has the fields "message", "data" and "identifier". When no listener is added, then the "data" field will be treated as URI and opened.
+Allows specifying your own handler when a notification is opened by the user. The function is passed a notification object, which has the fields "message", "data" and "identifier". When no listener is added, then the "data" field will be treated as URI and opened. **Be sure to call this method before _plotInit_ is called.**
 
 _plot.initPlot(config)_
 
