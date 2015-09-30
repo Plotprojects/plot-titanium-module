@@ -26,9 +26,9 @@
 		24DD6CFA1134B3F500162E58 /* ComPlotprojectsTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* ComPlotprojectsTiModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h */; };
 		24DE9E1211C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m */; };
-		4D2B67E71B56774D00F68766 /* libPlot-v1_10_2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D2B67E61B56774D00F68766 /* libPlot-v1_10_2.a */; };
 		4D2C68F51AD415270007E0E5 /* ComPlotProjectsTiGeotriggerHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2C68F31AD415270007E0E5 /* ComPlotProjectsTiGeotriggerHandler.h */; };
 		4D2C68F61AD415270007E0E5 /* ComPlotprojectsTiGeotriggerHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2C68F41AD415270007E0E5 /* ComPlotprojectsTiGeotriggerHandler.m */; };
+		4D3913761BBBFEB8007AFA5F /* libPlot-v1_11_0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D3913751BBBFEB8007AFA5F /* libPlot-v1_11_0.a */; settings = {ASSET_TAGS = (); }; };
 		4D53BA8417FF074500C63879 /* Plot.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D53BA8317FF074500C63879 /* Plot.h */; };
 		4D559F66193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D559F64193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h */; };
 		4D559F67193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D559F65193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m */; };
@@ -52,9 +52,9 @@
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
 		24DE9E0F11C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ComPlotprojectsTiModuleAssets.h; path = Classes/ComPlotprojectsTiModuleAssets.h; sourceTree = "<group>"; };
 		24DE9E1011C5FE74003F90F6 /* ComPlotprojectsTiModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiModuleAssets.m; path = Classes/ComPlotprojectsTiModuleAssets.m; sourceTree = "<group>"; };
-		4D2B67E61B56774D00F68766 /* libPlot-v1_10_2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_10_2.a"; sourceTree = "<group>"; };
 		4D2C68F31AD415270007E0E5 /* ComPlotProjectsTiGeotriggerHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ComPlotProjectsTiGeotriggerHandler.h; path = Classes/ComPlotProjectsTiGeotriggerHandler.h; sourceTree = "<group>"; };
 		4D2C68F41AD415270007E0E5 /* ComPlotprojectsTiGeotriggerHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiGeotriggerHandler.m; path = Classes/ComPlotprojectsTiGeotriggerHandler.m; sourceTree = "<group>"; };
+		4D3913751BBBFEB8007AFA5F /* libPlot-v1_11_0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_11_0.a"; sourceTree = "<group>"; };
 		4D53BA8317FF074500C63879 /* Plot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plot.h; sourceTree = "<group>"; };
 		4D559F64193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ComPlotprojectsTiNotificationFilter.h; path = Classes/ComPlotprojectsTiNotificationFilter.h; sourceTree = "<group>"; };
 		4D559F65193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiNotificationFilter.m; path = Classes/ComPlotprojectsTiNotificationFilter.m; sourceTree = "<group>"; };
@@ -68,8 +68,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D3913761BBBFEB8007AFA5F /* libPlot-v1_11_0.a in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
-				4D2B67E71B56774D00F68766 /* libPlot-v1_10_2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,7 +87,7 @@
 		0867D691FE84028FC02AAC07 /* plot-ios-module */ = {
 			isa = PBXGroup;
 			children = (
-				4D2B67E61B56774D00F68766 /* libPlot-v1_10_2.a */,
+				4D3913751BBBFEB8007AFA5F /* libPlot-v1_11_0.a */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
