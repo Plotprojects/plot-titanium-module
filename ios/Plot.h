@@ -2,7 +2,7 @@
 //  Plot.h
 //  Plot
 //
-//  Copyright (c) 2014 Floating Market B.V. All rights reserved.
+//  Copyright (c) 2015 Floating Market B.V. All rights reserved.
 //
 
 /*! \mainpage IOS Plugin Documentation
@@ -408,6 +408,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
  * @param value
  * @param propertyKey
  */
@@ -415,6 +416,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
  * @param value
  * @param propertyKey
  */
@@ -422,6 +424,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
  * @param value
  * @param propertyKey
  */
@@ -429,6 +432,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
  * @param value
  * @param propertyKey
  */
@@ -436,6 +440,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
+ * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
  * @param value
  * @param propertyKey
  */

@@ -163,7 +163,7 @@ for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
 }
 
 //always call plot.markGeoTriggersHandled function, even if geotriggersHandler.geotriggers becomes empty
-plot.markGeoTriggersHandled(geotriggersPassed);
+plot.markGeotriggersHandled(geotriggersPassed);
 ```
 
 ### Retrieve cached notifications or geotriggers ###
