@@ -90,6 +90,10 @@ _plot.markGeoTriggersHandled(geotriggers)_
 
 Sends the handled geotriggers obtained from popGeotriggers(). Only call this method once per call to popGeotriggers(). Only to be called from the Geotrigger Handler.
 
+### Function reference - Segmentation ###
+
+More information about this feature can be found on our documentation page: [http://www.plotprojects.com/documentation#appcelerator_segmentation](http://www.plotprojects.com/documentation#appcelerator_segmentation)
+
 _plot.setStringSegmentationProperty(property, value)_
 
 Sets a string property for the device on which notifications can be segmented.
@@ -108,7 +112,7 @@ Sets a double property for the device on which notifications can be segmented.
 
 _plot.setDateSegmentationProperty(property, value)_
 
-Sets a date property for the device on which notifications can be segmented.
+Sets a date property for the device on which notifications can be segmented. Value should be a JavaScript Date.
 
 ### Notification Filter ###
 
@@ -185,7 +189,7 @@ var cachedGeotriggers = plot.getLoadedGeotriggers();
 ### More information ###
 Website: http://www.plotprojects.com/
 
-Documentation: http://www.plotprojects.com/support
+Documentation: http://www.plotprojects.com/documentation
 
 Technical support: https://groups.google.com/forum/#!forum/plot-users
 
