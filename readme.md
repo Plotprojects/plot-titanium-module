@@ -9,21 +9,7 @@ This plugins supports both IOS and Android.
 
 ### Installation ###
 
-Install our module by downloading our [latest release from releases](https://github.com/Plotprojects/plot-titanium-module/releases).
-
-The following snippet has to be added to one of your scripts used to initialize your application (usually app.js or alloy.js):
-```
-var plot = require('com.plotprojects.ti');
-plot.initPlot({ notificationFilterEnabled: false });
-```
-
-Create the configuration file assets/plotconfig.json. A default implementation including your public token can be obtained from https://admin.plotprojects.com (visit http://www.plotprojects.com/getourplugin/ to create a free account).
-
-When your app also targets IOS, then it is also required to specify why your app requires location services. You do that in your plist. Add the following lines to _tiApp.xml_ at the _ios/plist/dict_ element:
-```
-<key>NSLocationAlwaysUsageDescription</key>
-<string>Your location is used to instantly inform you when you are near a location that is interesting to you.</string>
-```
+Follow the integration guide at our website: [http://www.plotprojects.com/appcelerator-integration/](http://www.plotprojects.com/appcelerator-integration/)
 
 ### Function reference ###
 
