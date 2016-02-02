@@ -11,7 +11,7 @@ This plugins supports both IOS and Android.
 
 Follow the integration guide at our website: [http://www.plotprojects.com/appcelerator-integration/](http://www.plotprojects.com/appcelerator-integration/)
 
-### plotconfig.json properties ###
+### Configuration ###
 
 Additional settings are possible using the configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
 	
