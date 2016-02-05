@@ -13,7 +13,7 @@ Follow the integration guide at our website: [http://www.plotprojects.com/appcel
 
 ### Configuration ###
 
-Additional settings are possible using the configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
+Additional settings are possible using the `plotconfig.json` configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
 	
 Information about these settings can be found in our extensive documentation, in chapter 1.4: [http://www.plotprojects.com/documentation#ConfigurationFile](http://www.plotprojects.com/documentation#ConfigurationFile)
 
