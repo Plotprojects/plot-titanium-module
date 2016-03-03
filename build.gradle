@@ -4,8 +4,8 @@ def iosSource = 'ios'
 def androidSource = 'android/lib'
 
 def pluginVersion = System.getenv('VersionNumber')
-def iosVersionNumber = System.getenv('iOSVersionNumber').replace('.', '_')
-def androidVersionNumber = System.getenv('AndroidVersionNumber').replace('.', '_')
+def iosVersionNumber = System.getenv('iOSVersionNumber').replace('.', '_').replace('-', '_')
+def androidVersionNumber = System.getenv('AndroidVersionNumber').replace('.', '_').replace('-', '_')
 
 def iosManifest = new File('ios/manifest')
 def androidManifest = new File('android/manifest')
@@ -21,8 +21,8 @@ def androidModuleZip = "android/dist/com.plotprojects.ti-android-${pluginVersion
 def exampleProjectDir = "plotprojects-example"
 def examplePublicToken = System.getenv('PUBLIC_TOKEN')
 
-def gitRepo = "origin"
-def gitRepoUrl = "https://github.com/Plotprojects/plot-titanium-module.git"
+def gitRepo = "githubRepo"
+def gitRepoUrl = "git@github.com:Plotprojects/plot-titanium-module.git"
 
 task clean << {
   delete file('tmp')
@@ -34,7 +34,7 @@ task clean << {
 }
 
 task downloadIosReleaseZip(type: FileDownload) {
-  sourceUrl = System.getenv('http://www.plotprojects.com/static/plugins/Plot-iOS-v${iOSVersionNumber}.zip')
+  sourceUrl = "http://www.plotprojects.com/static/plugins/Plot-iOS-v${iosVersionNumber}.zip"
   target = iosZip
 }
 
@@ -48,7 +48,7 @@ task extractIosReleaseZip(type: Copy, dependsOn: downloadIosReleaseZip) {
 }
 
 task downloadAndroidReleaseZip(type: FileDownload) {
-  sourceUrl = System.getenv('http://www.plotprojects.com/static/plugins/Plot-Android-v${androidVersionNumber}.zip')
+  sourceUrl = "http://www.plotprojects.com/static/plugins/Plot-Android-v${androidVersionNumber}.zip"
   target = androidZip
 }
 
@@ -114,7 +114,7 @@ task insertLibraries(dependsOn: ['insertIosLibrary', 'insertAndroidLibrary']) {
   iosManifest.write(iosContents, 'UTF-8')
 
   exec {
-    commandLine 'sed', '-i', '-e', "s/VERSION_UNDERSCORE/v$iosVersionNumber/g", 'ios/plot-ios-module.xcodeproj/project.pbxproj'
+    commandLine 'sed', '-i', '-e', "s/VERSION_UNDERSCORE/$iosVersionNumber/g", 'ios/plot-ios-module.xcodeproj/project.pbxproj'
   }
 }
 
@@ -141,6 +141,13 @@ task createGitCommit << {
   }
   exec {
     commandLine 'git', 'commit', '-m', "Release of ${pluginVersion}"
+  }
+  exec {
+    ignoreExitValue true
+    commandLine 'git', 'remote', 'remove', gitRepo
+  }
+  exec {
+    commandLine 'git', 'remote', 'add', gitRepo, gitRepoUrl
   }
   exec {
     commandLine 'git', 'push', gitRepo, 'master'
