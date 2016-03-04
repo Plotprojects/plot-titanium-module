@@ -13,14 +13,19 @@
  */
 
 #import <Foundation/Foundation.h>
-
-@class UIViewController;
+#import <UIKit/UIKit.h>
 
 /** 
  * \memberof Plot
  * Key for userInfo properties in UILocalNotifications created by Plot.
  */
 extern NSString* const PlotNotificationIdentifier;
+
+/**
+ * \memberof Plot
+ * Key for userInfo properties in UILocalNotifications created by Plot. Contains an unique identifier for this match (instance of this notification).
+ */
+extern NSString* const PlotNotificationMatchIdentifier;
 
 /**
  * \memberof Plot
@@ -114,9 +119,41 @@ extern NSString* const PlotNotificationRegionTypeBeacon;
 
 /**
  * \memberof Plot
+ * The field of the userinfo in the local notification that describes how the type of action that should be performed when tapping on the notification.
+ * Possible values are regular, landingPage and applink.
+ */
+extern NSString* const PlotNotificationHandlerType;
+
+/**
+ * \memberof Plot
+ * Constant for PlotNotificationHandlerType, used when the custom or default notification handler is called.
+ */
+extern NSString* const PlotNotificationHandlerTypeRegular;
+
+/**
+ * \memberof Plot
+ * Constant for PlotNotificationHandlerType, used when an in-app WebView is shown when tapping on the notification.
+ */
+extern NSString* const PlotNotificationHandlerTypeLandingPage;
+
+/**
+ * \memberof Plot
+ * Constant for PlotNotificationHandlerType, used when an app should be started when tapping on the notification. 
+ * This contains a deep link to a page in that app and provides a fallback for when the app is not installed.
+ */
+extern NSString* const PlotNotificationHandlerTypeApplink;
+
+/**
+ * \memberof Plot
  * Key for userInfo properties for geotriggers in UILocalNotifications created by Plot.
  */
 extern NSString* const PlotGeotriggerIdentifier; //synonym for PlotNotificationIdentifier
+
+/**
+ * \memberof Plot
+ * Key for userInfo properties for geotriggers in UILocalNotifications created by Plot.
+ */
+extern NSString* const PlotGeotriggerMatchIdentifier; // synonym for PlotNotificationMatchIdentifier
 
 /**
  * \memberof Plot
@@ -180,20 +217,18 @@ extern NSString* const PlotGeotriggerTriggerExit; //synonym for PlotNotification
 
 /**
  * \memberof Plot
- * Constant for PloGeotriggerRegionType, used on geofence regions.
+ * Constant for PlotGeotriggerRegionType, used on geofence regions.
  */
 extern NSString* const PlotGeotriggerRegionTypeGeofence;
 
 /**
  * \memberof Plot
- * Constant for PloGeotriggerRegionType, used on beacon regions.
+ * Constant for PlotGeotriggerRegionType, used on beacon regions.
  */
 extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 
 @protocol PlotDelegate;
-
-@class UILocalNotification;
 
 /**
  * Represents a notification just before or after sending. You can modify the notification just before it is sent using the Notification Filter.
@@ -250,6 +285,48 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  * @param delegate the delegate to test.
  */
 +(NSArray*)testHandleGeotriggers:(NSArray*)geotriggers delegate:(id<PlotDelegate>)delegate;
+
+@end
+
+/**
+ * Represents a sent notification. When fetching sent notifications, these are returned inside an array.
+ */
+@interface PlotSentNotification : NSObject
+
+/** Equivalent of the userInfo for a UILocalNotification, use UILocalNotifications keys to retrieve values of the sent notification.
+ */
+@property (nonatomic, copy, readonly) NSDictionary *userInfo;
+
+/** Date when the notification was sent to the user.
+ */
+@property (nonatomic, copy, readonly) NSDate* dateSent;
+
+/** Optional date when the notification was opened by the user.
+ */
+@property (nonatomic, copy, readonly) NSDate* dateOpened;
+
+-(instancetype)initializeWithUserInfo:(NSDictionary*)userInfo dateSent:(NSDate*)dateSent dateOpened:(NSDate*)dateOpened;
+
+@end
+
+/**
+ * Represents a sent geotrigger. When fetching sent geotriggers, these are returned inside an array.
+ */
+@interface PlotSentGeotrigger : NSObject
+
+/** Equivalent of the userInfo for a UILocalNotification, use geotrigger keys to retrieve values of the geotrigger.
+ */
+@property (nonatomic, copy, readonly) NSDictionary *userInfo;
+
+/** Date when the geotrigger was triggered by the user, and sent to the geotrigger handler.
+ */
+@property (nonatomic, copy, readonly) NSDate* dateSent;
+
+/** Optional date when the geotrigger was handled by the geotrigger handler.
+ */
+@property (nonatomic, copy, readonly) NSDate* dateHandled;
+
+-(instancetype)initializeWithUserInfo:(NSDictionary*)userInfo dateSent:(NSDate*)dateSent dateHandled:(NSDate*)dateHandled;
 
 @end
 
@@ -409,6 +486,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
  * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
+ * All currently loaded notifications on the device will be removed when calling this method. The next data update will contain all appropriately segmented notifications.
  * @param value
  * @param propertyKey
  */
@@ -417,6 +495,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
  * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
+ * All currently loaded notifications on the device will be removed when calling this method. The next data update will contain all appropriately segmented notifications.
  * @param value
  * @param propertyKey
  */
@@ -425,6 +504,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
  * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
+ * All currently loaded notifications on the device will be removed when calling this method. The next data update will contain all appropriately segmented notifications.
  * @param value
  * @param propertyKey
  */
@@ -433,6 +513,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
  * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
+ * All currently loaded notifications on the device will be removed when calling this method. The next data update will contain all appropriately segmented notifications.
  * @param value
  * @param propertyKey
  */
@@ -441,6 +522,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 /**
  * Sets a property of the user for segmentation. Set value to nil to clear the property.
  * A property can only have a single value. When setting a value for an existing property the previous value gets overwritten.
+ * All currently loaded notifications on the device will be removed when calling this method. The next data update will contain all appropriately segmented notifications.
  * @param value
  * @param propertyKey
  */
@@ -454,14 +536,46 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 +(void)setAdvertisingIdentifier:(NSUUID*)advertisingIdentifier advertisingTrackingEnabled:(BOOL)advertisingTrackingEnabled;
 
 /**
- * Returns a list of all loaded notifications. These include the notifications that are already sent. This call uses blocking I/O, therefore shouldn't be run on the main thread.
+ * Returns a list of all loaded notifications. These include the notifications that are already sent. Type is an array of UILocalNotification. You can retrieve data from the userInfo dictionary.
+ * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
 +(NSArray*)loadedNotifications;
 
 /**
- * Returns a list of all loaded geotriggers. This call uses blocking I/O, therefore shouldn't be run on the main thread.
+ * Returns a list of all loaded geotriggers. Type is an array of PlotGeotrigger. You can retrieve data from the userInfo dictionary.
+ * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
 +(NSArray*)loadedGeotriggers;
+
+/**
+ * Returns a list of all notifications sent by this library. Up to a 100 notifications will be stored. Type is an array of PlotSentNotification.
+ * This call uses blocking I/O, therefore shouldn't be run on the main thread.
+ */
++(NSArray*)sentNotifications;
+
+/**
+ * Returns a list of all geotriggers sent by this library. Up to a 100 geotriggers will be stored. Type is an array of PlotSentGeotrigger.
+ * This call uses blocking I/O, therefore shouldn't be run on the main thread.
+ */
++(NSArray*)sentGeotriggers;
+
+/**
+ * Clears the stored list of sent notifications.
+ */
++(void)clearSentNotifications;
+
+/**
+ * Clears the stored list of sent geotriggers.
+ */
++(void)clearSentGeotriggers;
+
++(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken;
+
++(void)didFailToRegisterForRemoteNotificationsWithError:(NSError*)error;
+
++(void)didReceiveRemoteNotification:(NSDictionary *)userInfo;
+
++(void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler;
 
 @end
 
