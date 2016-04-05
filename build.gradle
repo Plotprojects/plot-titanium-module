@@ -2,6 +2,7 @@ import groovy.json.JsonSlurper
 
 def iosSource = 'ios'
 def androidSource = 'android/lib'
+def githubSourceDir = 'github'
 
 def pluginVersion = System.getenv('VersionNumber')
 def iosVersionNumber = System.getenv('iOSVersionNumber').replace('.', '_').replace('-', '_')
@@ -21,8 +22,9 @@ def androidModuleZip = "android/dist/com.plotprojects.ti-android-${pluginVersion
 def exampleProjectDir = "plotprojects-example"
 def examplePublicToken = System.getenv('PUBLIC_TOKEN')
 
-def gitRepo = "githubRepo"
+def gitRepo = "origin"
 def gitRepoUrl = "git@github.com:Plotprojects/plot-titanium-module.git"
+def gitRepoReleaseUrl = "github.com/repos/Plotprojects/plot-titanium-module/releases"
 
 task clean << {
   delete file('tmp')
@@ -135,21 +137,42 @@ task extractAndroidPluginZip(type: Copy) {
 extractIosPluginZip.mustRunAfter clean
 extractAndroidPluginZip.mustRunAfter clean
 
-task createGitCommit << {
+task cloneGitRepository << {
   exec {
+    commandLine 'rm', '-rf', githubSourceDir
+  }
+  exec {
+    commandLine 'mkdir', githubSourceDir
+  }
+  exec {
+    commandLine 'git', 'clone', gitRepoUrl, githubSourceDir
+  }
+}
+
+task clearGitRepository(dependsOn: cloneGitRepository) << {
+  def objectFiles = fileTree(dir: githubSourceDir, include: '**/*')
+
+  delete objectFiles.files
+}
+
+task copyRepository(dependsOn: clearGitRepository) << {  
+  copy {
+    from  fileTree(dir: '.', exclude: ['tmp', githubSourceDir])
+    into githubSourceDir    
+  }
+}
+
+task createGitCommit(dependsOn: copyRepository) << {  
+  exec {
+    workingDir githubSourceDir
     commandLine 'git', 'add', '--all'
   }
   exec {
+    workingDir githubSourceDir
     commandLine 'git', 'commit', '-m', "Release of ${pluginVersion}"
   }
   exec {
-    ignoreExitValue true
-    commandLine 'git', 'remote', 'remove', gitRepo
-  }
-  exec {
-    commandLine 'git', 'remote', 'add', gitRepo, gitRepoUrl
-  }
-  exec {
+    workingDir githubSourceDir
     commandLine 'git', 'push', gitRepo, 'master'
   }
 }
@@ -158,12 +181,15 @@ task createGitTag(dependsOn: createGitCommit) << {
   def androidTagName = "android-${pluginVersion}"
   def iosTagName = "iphone-${pluginVersion}"
   exec {
+    workingDir githubSourceDir
     commandLine 'git', 'tag', androidTagName
   }
   exec {
+    workingDir githubSourceDir
     commandLine 'git', 'tag', iosTagName
   }
   exec {
+    workingDir githubSourceDir
     commandLine 'git', 'push', gitRepo, '--tags'
   }
 }
@@ -171,12 +197,14 @@ task createGitTag(dependsOn: createGitCommit) << {
 task publishAndroidGitHub << {
   def jsonSlurper = new JsonSlurper()  
   exec {
-    commandLine "curl", "--data", "'{\"tag_name\":\"android-${pluginVersion}\"}'", "https://api.github.com/repos/Plotprojects/plot-titanium-module/releases", "--netrc"
+    workingDir githubSourceDir
+    commandLine "curl", "--data", "'{\"tag_name\":\"android-${pluginVersion}\"}'", "https://api." + gitRepoReleaseUrl, "--netrc"
   }
 
   def output = new ByteArrayOutputStream()
   exec {
-    commandLine "curl", "https://api.github.com/repos/Plotprojects/plot-titanium-module/releases/latest", "--netrc"
+    workingDir githubSourceDir
+    commandLine "curl", "https://api." + gitRepoReleaseUrl + "/latest", "--netrc"
     standardOutput = output
   }
 
@@ -185,19 +213,22 @@ task publishAndroidGitHub << {
   def releaseId = json.id
 
   exec {
-    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', androidModuleZip, "https://uploads.github.com/repos/Plotprojects/plot-titanium-module/releases/${releaseId}/assets"
+    workingDir githubSourceDir
+    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', androidModuleZip, "https://uploads." + gitRepoReleaseUrl + "/${releaseId}/assets"
   }
 }
 
 task publishIOSGitHub << {
   def jsonSlurper = new JsonSlurper()  
   exec {
-    commandLine "curl", "--data", "'{\"tag_name\":\"iphone-${pluginVersion}}\"}'", "https://api.github.com/repos/Plotprojects/plot-titanium-module/releases", "--netrc"
+    workingDir githubSourceDir
+    commandLine "curl", "--data", "'{\"tag_name\":\"iphone-${pluginVersion}}\"}'", "https://api." + gitRepoReleaseUrl, "--netrc"
   }
 
   def output = new ByteArrayOutputStream()
   exec {
-    commandLine "curl", "https://api.github.com/repos/Plotprojects/plot-titanium-module/releases/latest", "--netrc"
+    workingDir githubSourceDir
+    commandLine "curl", "https://api." + gitRepoReleaseUrl + "/latest", "--netrc"
     standardOutput = output
   }
 
@@ -206,7 +237,8 @@ task publishIOSGitHub << {
   def releaseId = json.id
 
   exec {
-    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', iosModuleZip, "https://uploads.github.com/repos/Plotprojects/plot-titanium-module/releases/${releaseId}/assets"
+    workingDir githubSourceDir
+    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', iosModuleZip, "https://uploads." + gitRepoReleaseUrl + "/${releaseId}/assets"
   }
 }
 
@@ -246,12 +278,12 @@ task debug(dependsOn: ['clean', 'addPluginToExampleProject', 'replaceConfig']) {
   group "Debug"
 }
 
-task staging(dependsOn: ['clean', 'addPluginToExampleProject', 'replaceConfig', 'createGitTag']) {
+task staging(dependsOn: ['clean', 'addPluginToExampleProject', 'replaceConfig']) {
   description "Stages a release of a new version of the library and compiles example application"
   group "Release"
 }
 
-task release(dependsOn: ['staging', 'publishAndroidGitHub', 'publishIOSGitHub']) {
+task release(dependsOn: ['staging', 'publishAndroidGitHub', 'publishIOSGitHub', 'createGitTag']) {
   description "Releases a new version of the library and pushes to GitHub"
   group "Release"
 }
