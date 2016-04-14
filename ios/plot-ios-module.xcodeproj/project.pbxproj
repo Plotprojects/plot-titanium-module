@@ -31,7 +31,7 @@
 		4D53BA8417FF074500C63879 /* Plot.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D53BA8317FF074500C63879 /* Plot.h */; };
 		4D559F66193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D559F64193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h */; };
 		4D559F67193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D559F65193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m */; };
-		4D7F81F21C19C6CE008A0975 /* libPlot-v1_14_1_beta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7F81F11C19C6CE008A0975 /* libPlot-v1_14_1_beta.a */; };
+		4D7F81F21C19C6CE008A0975 /* libPlot-v1_15_0_beta.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7F81F11C19C6CE008A0975 /* libPlot-v1_15_0_beta.a */; };
 		AA747D9F0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -57,7 +57,7 @@
 		4D53BA8317FF074500C63879 /* Plot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plot.h; sourceTree = "<group>"; };
 		4D559F64193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ComPlotprojectsTiNotificationFilter.h; path = Classes/ComPlotprojectsTiNotificationFilter.h; sourceTree = "<group>"; };
 		4D559F65193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiNotificationFilter.m; path = Classes/ComPlotprojectsTiNotificationFilter.m; sourceTree = "<group>"; };
-		4D7F81F11C19C6CE008A0975 /* libPlot-v1_14_1_beta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_14_1_beta.a"; sourceTree = "<group>"; };
+		4D7F81F11C19C6CE008A0975 /* libPlot-v1_15_0_beta.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libPlot-v1_15_0_beta.a"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComPlotprojectsTi_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libComPlotprojectsTi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libComPlotprojectsTi.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,7 +69,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
-				4D7F81F21C19C6CE008A0975 /* libPlot-v1_14_1_beta.a in Frameworks */,
+				4D7F81F21C19C6CE008A0975 /* libPlot-v1_15_0_beta.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,7 +87,7 @@
 		0867D691FE84028FC02AAC07 /* plot-ios-module */ = {
 			isa = PBXGroup;
 			children = (
-				4D7F81F11C19C6CE008A0975 /* libPlot-v1_14_1_beta.a */,
+				4D7F81F11C19C6CE008A0975 /* libPlot-v1_15_0_beta.a */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,

@@ -353,6 +353,18 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 @optional
 -(void)plotHandleGeotriggers:(PlotHandleGeotriggers*)geotriggerHandler;
 
+/**
+ * Implement this method if you want to listen to the notification sent event. This is called whenever a notification is displayed to the user on the device. Use the plotNotificationOpenedEvent method if you want to use the notification opened event.
+ */
+@optional
+-(void)plotNotificationSentEvent:(PlotSentNotification*)notification;
+
+/**
+ * Implement this method if you want to listen to the notification opened event. This is called whenever a notification is tapped (opened) by the user. Use the plotNotificationSentEvent method if you want to use the notification sent event.
+ */
+@optional
+-(void)plotNotificationOpenedEvent:(PlotSentNotification*)notification;
+
 @end
 
 /** All configurations for the plot app.
