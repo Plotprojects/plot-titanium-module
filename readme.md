@@ -9,18 +9,15 @@ This plugins supports both IOS and Android.
 
 ### Installation ###
 
-Follow the integration guide at our website:
-
-| :book: [Integration Guide](http://www.plotprojects.com/appcelerator-integration/) |
-| :---: |
+Follow the integration guide at our website: [http://www.plotprojects.com/appcelerator-integration/](http://www.plotprojects.com/appcelerator-integration/)
 
 ### Configuration ###
 
-Additional settings are possible using the `plotconfig.json` configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the Integration Guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
+Additional settings are possible using the `plotconfig.json` configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
 	
 Information about these settings can be found in our extensive documentation, in chapter 1.4: [http://www.plotprojects.com/documentation#ConfigurationFile](http://www.plotprojects.com/documentation#ConfigurationFile)
 
-```javascript	
+```	
 {
   "publicToken": "REPLACE_ME",
   "enableOnFirstRun": true,
@@ -129,7 +126,7 @@ You define the filter in _assets/plotfilter.js_. When Plot detects that a notifi
 The message and the data property of the notification can be modified. You can remove notifications from the array you don't want to show. Always call _plot.popFilterableNotifications()_ and _plot.sendNotifications(filterableNotifications)_, even when no notifications will be shown. 
 
 An example for _assets/plotfilter.js_:
-```javascript
+```
 var plot = require('com.plotprojects.ti');
 
 Ti.API.info('Notification Filter. Plot version: ' + plot.version);
@@ -155,7 +152,7 @@ You define the handler in _assets/plotgeotriggerhandler.js_. When Plot detects t
 You can remove geotriggers from the array you don't want to mark as handled. Always call _plot.popGeotriggers()_ and _plot.markGeoTriggersHandled(geotriggers)_.
 
 An example for _assets/plotgeotriggerhandler.js_:
-```javascript
+```
 var plot = require('com.plotprojects.ti');
 
 Ti.API.info('Plot version: ' + plot.version);
@@ -185,7 +182,7 @@ You can call _plot.getLoadedNotifications()_ to retrieve the notifications, and 
 Please note that this is an optional feature and not needed in order for the Plot library to work.
  
 An example implementation would be
-```javascript
+```
 var plot = require('com.plotprojects.ti');
 
 var cachedNotifications = plot.getLoadedNotifications();
