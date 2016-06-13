@@ -237,19 +237,19 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /** All notifications that are within the radius of the geofence. The type of the objects in the array is UILocalNotification*.
  */
-@property (strong, nonatomic, readonly) NSArray* uiNotifications;
+@property (strong, nonatomic, readonly) NSArray<UILocalNotification*>* uiNotifications;
 
 /** Shows the UILocalNotification* in the array in the notification center of the device. When a cooldown period is specified, only the first notification is shown when the cooldown is not in effect.
  * @param uiNotifications The array of local notifications.
  */
--(void)showNotifications:(NSArray*)uiNotifications;
+-(void)showNotifications:(NSArray<UILocalNotification*>*)uiNotifications;
 
 /**
  * Utility method that helps you test your notification filter. Returns the notifications your filter returns
  * @param notifications notifications to pass to your delegate. The elements must be of type UILocalNotification.
  * @param delegate the delegate to test.
  */
-+(NSArray*)testFilterNotifications:(NSArray*)notifications delegate:(id<PlotDelegate>)delegate;
++(NSArray*)testFilterNotifications:(NSArray<UILocalNotification*>*)notifications delegate:(id<PlotDelegate>)delegate;
 
 @end
 
@@ -273,18 +273,18 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
 
 /** All geotriggers that are within the radius of the geofence. The type of the objects in the array is PlotGeotrigger*.
  */
-@property (strong, nonatomic, readonly) NSArray* geotriggers;
+@property (strong, nonatomic, readonly) NSArray<PlotGeotrigger*> *geotriggers;
 
 /** Call this method after handling the geotriggers in your custom geotriggers handler.
  */
--(void)markGeotriggersHandled:(NSArray*)geotriggers;
+-(void)markGeotriggersHandled:(NSArray<PlotGeotrigger*>*)geotriggers;
 
 /**
  * Utility method that helps you test your geotrigger handler. Returns the geotriggers your handler would return (handled geotriggers).
  * @param geotriggers geotriggers to pass to your delegate. The elements must be of type PlotGeotrigger.
  * @param delegate the delegate to test.
  */
-+(NSArray*)testHandleGeotriggers:(NSArray*)geotriggers delegate:(id<PlotDelegate>)delegate;
++(NSArray*)testHandleGeotriggers:(NSArray<PlotGeotrigger*>*)geotriggers delegate:(id<PlotDelegate>)delegate;
 
 @end
 
@@ -551,25 +551,25 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  * Returns a list of all loaded notifications. These include the notifications that are already sent. Type is an array of UILocalNotification. You can retrieve data from the userInfo dictionary.
  * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
-+(NSArray*)loadedNotifications;
++(NSArray<UILocalNotification*>*)loadedNotifications;
 
 /**
  * Returns a list of all loaded geotriggers. Type is an array of PlotGeotrigger. You can retrieve data from the userInfo dictionary.
  * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
-+(NSArray*)loadedGeotriggers;
++(NSArray<PlotGeotrigger*>*)loadedGeotriggers;
 
 /**
  * Returns a list of all notifications sent by this library. Up to a 100 notifications will be stored. Type is an array of PlotSentNotification.
  * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
-+(NSArray*)sentNotifications;
++(NSArray<PlotSentNotification*>*)sentNotifications;
 
 /**
  * Returns a list of all geotriggers sent by this library. Up to a 100 geotriggers will be stored. Type is an array of PlotSentGeotrigger.
  * This call uses blocking I/O, therefore shouldn't be run on the main thread.
  */
-+(NSArray*)sentGeotriggers;
++(NSArray<PlotSentGeotrigger*>*)sentGeotriggers;
 
 /**
  * Clears the stored list of sent notifications.
