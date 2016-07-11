@@ -474,8 +474,8 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
                                        [self nilToNSNull:notification.alertBody], @"message",
                                        [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
                                        [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationMatchRange]], @"matchRange",
-                                       nil];
-    
+                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationHandlerType]], @"notificationHandlerType",
+                                       nil];    
     
     return eventNotification;
 }
@@ -492,7 +492,59 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
                                        [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerMatchRange]], @"matchRange",
                                        nil];
     
+    return eventGeotrigger;
+}
+
+-(NSDictionary*)sentNotificationToDictionary:(PlotSentNotification*)notification {
+    NSDictionary* userInfo = notification.userInfo;
+    NSMutableDictionary* eventNotification = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationDataKey]], @"data",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationGeofenceLatitude]], @"geofenceLatitude",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationGeofenceLongitude]], @"geofenceLongitude",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationTrigger]], @"trigger",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationIsBeacon]], @"isBeacon",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMessage]], @"message",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchIdentifier]], @"matchIdentifier",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchRange]], @"matchRange",
+                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationHandlerType]], @"notificationHandlerType",
+                                       @((int)[notification.dateSent timeIntervalSince1970]), @"dateSent",
+                                       nil];    
     
+    if (notification.dateOpened != nil) {
+        [eventNotification setObject:@((int)[notification.dateOpened timeIntervalSince1970]) forKey:@"dateOpened"];
+        [eventNotification setObject:@(YES) forKey:@"isOpened"];
+    } else {
+        [eventNotification setObject:@(-1) forKey:@"dateOpened"];
+        [eventNotification setObject:@(NO) forKey:@"isOpened"];
+    }
+
+    return eventNotification;
+}
+
+-(NSDictionary*)sentGeotriggerToDictionary:(PlotSentGeotrigger*)geotrigger {
+    NSDictionary* userInfo = geotrigger.userInfo;
+    NSMutableDictionary* eventGeotrigger = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerDataKey]], @"data",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerGeofenceLatitude]], @"geofenceLatitude",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerGeofenceLongitude]], @"geofenceLongitude",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerTrigger]], @"trigger",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerIsBeacon]], @"isBeacon",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerName]], @"name",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerIdentifier]], @"identifier",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchIdentifier]], @"matchIdentifier",
+                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerMatchRange]], @"matchRange",
+                                    @((int) [geotrigger.dateSent timeIntervalSince1970]), @"dateSent",
+                                    nil];    
+    
+    if (geotrigger.dateHandled != nil) {
+        [eventGeotrigger setObject:@((int) [geotrigger.dateHandled timeIntervalSince1970]) forKey:@"dateHandled"];
+        [eventGeotrigger setObject:@(YES) forKey:@"isHandled"];
+    } else {
+        [eventGeotrigger setObject:@(-1) forKey:@"dateHandled"];
+        [eventGeotrigger setObject:@(NO) forKey:@"isHandled"];
+    }
+
     return eventGeotrigger;
 }
 
@@ -535,7 +587,7 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
 }
 
 -(NSArray*)getLoadedNotifications:(id)args {
-	NSArray* notifications = [Plot loadedNotifications];
+    NSArray* notifications = [Plot loadedNotifications];
     NSMutableArray* jsonNotifications = [NSMutableArray array];
     for (UILocalNotification* localNotification in notifications) {
         [jsonNotifications addObject:[self localNotificationToDictionary:localNotification]];
@@ -550,6 +602,32 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
         [jsonGeotriggers addObject:[self geotriggerToDictionary:geotrigger]];
     }
 	return jsonGeotriggers;
+}
+
+-(NSArray*)getSentNotifications:(id)args {
+    NSArray* notifications = [Plot sentNotifications];
+    NSMutableArray* jsonNotifications = [NSMutableArray array];
+    for (PlotSentNotification* sentNotification in notifications) {
+        [jsonNotifications addObject:[self sentNotificationToDictionary:sentNotification]];
+    }
+    return jsonNotifications;
+}
+
+-(NSArray*)getSentGeotriggers:(id)args {
+    NSArray* geotriggers = [Plot sentGeotriggers];
+    NSMutableArray* jsonGeotriggers = [NSMutableArray array];
+    for (PlotSentGeotrigger* sentGeotrigger in geotriggers) {
+        [jsonGeotriggers addObject:[self sentGeotriggerToDictionary:sentGeotrigger]];
+    }
+    return jsonGeotriggers;
+}
+
+-(void)clearSentNotifications:(id)args {
+    [Plot clearSentNotifications];
+}
+
+-(void)clearSentGeotriggers:(id)args {
+    [Plot clearSentGeotriggers];
 }
 
 -(void)shutdownFilter:(ComPlotprojectsTiNotificationFilter*)filter {

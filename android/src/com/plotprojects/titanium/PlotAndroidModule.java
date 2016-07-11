@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 Floating Market B.V.
+ * Copyright 2016 Floating Market B.V.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -267,5 +267,26 @@ public class PlotAndroidModule extends KrollModule implements NotificationQueue.
   public HashMap[] getLoadedGeotriggers() {
   	return JsonUtil.geotriggersToMap(new ArrayList(Plot.getLoadedGeotriggers()));
   }
+  
+  @Kroll.getProperty @Kroll.method
+  public HashMap[] getSentNotifications() {
+  	return JsonUtil.sentNotificationsToMap(new ArrayList(Plot.getSentNotifications()));
+  }
+    
+  @Kroll.getProperty @Kroll.method
+  public HashMap[] getSentGeotriggers() {
+  	return JsonUtil.sentGeotriggersToMap(new ArrayList(Plot.getSentGeotriggers()));
+  }
+  
+  @Kroll.method
+  public void clearSentNotifications() {
+  	Plot.clearSentNotifications();
+  }
+  
+	@Kroll.method
+  public void clearSentGeotriggers() {
+  	Plot.clearSentGeotriggers();
+  }
+  
 
 }

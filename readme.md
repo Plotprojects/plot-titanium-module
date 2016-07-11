@@ -189,6 +189,13 @@ var cachedNotifications = plot.getLoadedNotifications();
 var cachedGeotriggers = plot.getLoadedGeotriggers();
 ```
 
+### Retrieve sent notifications or geotriggers ###
+
+It is possible to get a list of the notifications and geotriggers that have been sent by this library. You can call the methods _plot.getSentNotifications()_ and _plot.getSentGeotriggers()_
+to get a list of the 100 latest sent notifications/geotriggers. 
+
+The list can be cleared with _plot.clearSentNotifications()_ and _plot.clearSentGeotriggers()_.
+
 ### More information ###
 Website: http://www.plotprojects.com/
 
