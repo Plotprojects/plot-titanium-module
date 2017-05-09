@@ -18,7 +18,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "ComPlotprojectsTiGeotriggerHandler.h"
+#import "ComPlotProjectsTiGeotriggerHandler.h"
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "KrollBridge.h"

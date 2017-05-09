@@ -6,14 +6,15 @@
     <publisher>Plot</publisher>
     <url/>
     <description/>
-    <copyright>2016 by Plot</copyright>
+    <copyright>2017 by Plot Projects</copyright>
     <icon>appicon.png</icon>
     <fullscreen>false</fullscreen>
     <navbar-hidden>false</navbar-hidden>
-    <analytics>true</analytics>
-    <guid>ed729dce-3256-48e8-9999-182c15675c17</guid>
+    <analytics>false</analytics>
+    <guid>72bb43fe-5612-468a-9888-e555fe601f0a</guid>
     <property name="ti.ui.defaultunit" type="string">dp</property>
     <ios>
+    		<team-id>7CC5LNPAQ6</team-id>
         <plist>
             <dict>
                 <key>UISupportedInterfaceOrientations~iphone</key>
@@ -59,7 +60,7 @@
         <target device="mobileweb">false</target>
         <target device="windows">false</target>
     </deployment-targets>
-    <sdk-version>5.2.1.GA</sdk-version>
+    <sdk-version>6.0.4.GA</sdk-version>
     <plugins>
         <plugin version="1.0">ti.alloy</plugin>
     </plugins>

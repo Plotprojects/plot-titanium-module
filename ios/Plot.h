@@ -581,12 +581,22 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  */
 +(void)clearSentGeotriggers;
 
+
+/**
+ * Only needed when method swizzling is disabled in the Firebase library and you want to make use of QuickSync. Forward the method with the
+ * same name from the AppDelegate to Plot to ensure correct workings.
+ */
 +(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken;
 
+/**
+ * Only needed when method swizzling is disabled in the Firebase library and you want to make use of QuickSync. Forward the method with the
+ * same name from the AppDelegate to Plot to ensure correct workings.
+ */
 +(void)didFailToRegisterForRemoteNotificationsWithError:(NSError*)error;
 
-+(void)didReceiveRemoteNotification:(NSDictionary *)userInfo;
-
+/**
+ * Forward this method with the same name from the AppDelegate to Plot when you want to make use of QuickSync.
+ */
 +(void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler;
 
 @end

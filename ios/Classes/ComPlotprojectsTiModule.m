@@ -24,7 +24,7 @@
 #import "TiUtils.h"
 #import "Plot.h"
 #import "ComPlotprojectsTiNotificationFilter.h"
-#import "ComPlotprojectsTiGeotriggerHandler.h"
+#import "ComPlotProjectsTiGeotriggerHandler.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 

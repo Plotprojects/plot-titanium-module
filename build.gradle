@@ -36,7 +36,7 @@ task clean << {
 }
 
 task downloadIosReleaseZip(type: FileDownload) {
-  sourceUrl = "http://www.plotprojects.com/static/plugins/Plot-iOS-v${iosVersionNumber}.zip"
+  sourceUrl = "https://www.plotprojects.com/static/plugins/Plot-iOS-v${iosVersionNumber}.zip"
   target = iosZip
 }
 
@@ -50,7 +50,7 @@ task extractIosReleaseZip(type: Copy, dependsOn: downloadIosReleaseZip) {
 }
 
 task downloadAndroidReleaseZip(type: FileDownload) {
-  sourceUrl = "http://www.plotprojects.com/static/plugins/Plot-Android-v${androidVersionNumber}.zip"
+  sourceUrl = "https://www.plotprojects.com/static/plugins/Plot-Android-v${androidVersionNumber}.zip"
   target = androidZip
 }
 
@@ -91,6 +91,14 @@ task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']
   }
 
   ext.filename = objectFile.name
+  
+  String iosContents = iosManifest.getText('UTF-8')
+  iosContents = iosContents.replace('VERSION', "${pluginVersion}")
+  iosManifest.write(iosContents, 'UTF-8')
+
+  exec {
+    commandLine 'sed', '-i', '-e', "s/VERSION_UNDERSCORE/$iosVersionNumber/g", 'ios/plot-ios-module.xcodeproj/project.pbxproj'
+  }
 }
 
 task insertAndroidLibrary(dependsOn: ['extractAndroidReleaseZip', 'deleteOldVersionAndroid']) << {
@@ -102,22 +110,28 @@ task insertAndroidLibrary(dependsOn: ['extractAndroidReleaseZip', 'deleteOldVers
   }
 
   ext.filename = objectFile.name
-}
-
-task insertLibraries(dependsOn: ['insertIosLibrary', 'insertAndroidLibrary']) {
-  description "Inserts Android and iOS libraries into the appcelerator project"
-
+  
   String androidContents = androidManifest.getText('UTF-8')
   androidContents = androidContents.replace('VERSION', "${pluginVersion}")
   androidManifest.write(androidContents, 'UTF-8')
+}
 
-  String iosContents = iosManifest.getText('UTF-8')
-  iosContents = iosContents.replace('VERSION', "${pluginVersion}")
-  iosManifest.write(iosContents, 'UTF-8')
+task buildAndroidLibrary(type: Exec, dependsOn: insertAndroidLibrary) {
+		commandLine 'appc', 'run', '--build-only'
+		workingDir 'android/'
+}
 
-  exec {
-    commandLine 'sed', '-i', '-e', "s/VERSION_UNDERSCORE/$iosVersionNumber/g", 'ios/plot-ios-module.xcodeproj/project.pbxproj'
-  }
+task buildIosLibrary(type: Exec, dependsOn: insertIosLibrary) {
+	
+		commandLine 'appc', 'run', '--build-only'
+		workingDir 'ios/'
+	
+}
+
+
+task buildLibraries(dependsOn: ['buildIosLibrary', 'buildAndroidLibrary']) {
+  description "Build Android and iOS libraries into the appcelerator project"
+
 }
 
 task extractIosPluginZip(type: Copy) {
@@ -264,10 +278,12 @@ replaceConfig << {
 task addPluginToExampleProject(dependsOn: ['extractIosPluginZip', 'extractAndroidPluginZip']) << {
   // build example app
   exec {
-    commandLine 'ti', 'build', '--platform', 'android', '--build-only', '--project-dir', 'plotprojects-example/'
+  	commandLine 'appc', 'run', '--build-only', '--platform', 'android'
+  	workingDir 'plotprojects-example/'
   }
   exec {
-    commandLine 'ti', 'build', '--platform', 'ios', '--build-only', '--project-dir', 'plotprojects-example/'
+		commandLine 'appc', 'run', '--build-only', '--platform', 'iphone'
+		workingDir 'plotprojects-example/'
   }
 }
 
