@@ -239,7 +239,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  */
 @property (strong, nonatomic, readonly) NSArray<UILocalNotification*>* uiNotifications;
 
-/** Shows the UILocalNotification* in the array in the notification center of the device. When a cooldown period is specified, only the first notification is shown when the cooldown is not in effect.
+/** Shows the UILocalNotification* in the array in the notification center of the device. When a cooldown period is specified, only the first notification is shown when the cooldown is not in effect. Make sure to always call this method at the end of the filtering, even when the array of notifications to show is empty. This way our plugin knows filtering has finished.
  * @param uiNotifications The array of local notifications.
  */
 -(void)showNotifications:(NSArray<UILocalNotification*>*)uiNotifications;
@@ -275,7 +275,7 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  */
 @property (strong, nonatomic, readonly) NSArray<PlotGeotrigger*> *geotriggers;
 
-/** Call this method after handling the geotriggers in your custom geotriggers handler.
+/** Call this method after handling the geotriggers in your custom geotriggers handler, even when there are no geotriggers to handle, so our plugin detects that handling has finished.
  */
 -(void)markGeotriggersHandled:(NSArray<PlotGeotrigger*>*)geotriggers;
 
@@ -341,13 +341,13 @@ extern NSString* const PlotGeotriggerRegionTypeBeacon;
  */
 -(void)plotHandleNotification:(UILocalNotification*)notification data:(NSString*)data;
 
-/** Implement this method if you want to prevent notifications from being shown or modify notifications before they are shown. Select which notifications have to be shown and call [filterNotifications showNotifications:notifications]. Please note that notifications that have been filtered this way can be triggered again later and that in-app landing pages bypass this filter.
+/** Implement this method if you want to prevent notifications from being shown or modify notifications before they are shown. Select which notifications have to be shown and call [filterNotifications showNotifications:notifications]. Make sure to always call this method, even when the array of notifications is empty. Please note that notifications that have been filtered this way can be triggered again later and that in-app landing pages bypass this filter.
  * @param filterNotifications
  */
 @optional
 -(void)plotFilterNotifications:(PlotFilterNotifications*)filterNotifications;
 
-/** Implement this method if you want to handle geotriggers. If you want geotriggers to use cooldowns etc, call [geotriggerHandler markGeoTriggersHandled:geotriggers]. Please note that geotriggers that have not been passed on this way can be triggered again later eventhough they are not resendable.
+/** Implement this method if you want to handle geotriggers. If you want geotriggers to use cooldowns etc, call [geotriggerHandler markGeoTriggersHandled:geotriggers]. Make sure to always call this method, even when the array of geotriggers is empty. Please note that geotriggers that have not been passed on this way can be triggered again later even though they are not resendable.
  * @param geotriggerHandler
  */
 @optional
