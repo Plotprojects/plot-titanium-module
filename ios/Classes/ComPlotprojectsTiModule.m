@@ -16,36 +16,27 @@
  * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * and licensed under the Apache Public License (version 2)
  */
+
 #import <UIKit/UIKit.h>
 #import "ComPlotprojectsTiModule.h"
-#import "TiBase.h"
-#import "TiHost.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Plot.h"
-#import "ComPlotprojectsTiNotificationFilter.h"
-#import "ComPlotProjectsTiGeotriggerHandler.h"
+#import "ComPlotprojectsTiConversions.h"
+#import <UserNotifications/UserNotifications.h>
+#import <PlotProjects/Plot.h>
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
-static BOOL plotInitialized = NO; //use static variable to prevent initializing Plot again
-static int filterIndex = 1;
-static BOOL enableNotificationFilter = NO;
-static int handlerIndex = 1;
-static BOOL enableGeotriggerHandler = NO;
+static NSDictionary* launchOptions;
+static ComPlotprojectsTiPlotDelegate* plotDelegate;
 
-static NSMutableArray* notificationsToBeReceived = nil;
-static NSMutableArray* notificationsToFilter = nil;
-static NSMutableDictionary* notificationsBeingFiltered = nil;
-static NSMutableArray* geotriggersToHandle = nil;
-static NSMutableDictionary* geotriggersBeingHandled = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 @implementation ComPlotprojectsTiModule
 
-+(void)initialize {
++(void)load {
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveLocalNotification:)
-                                                 name:kTiLocalNotification
+                                             selector:@selector(didFinishLaunching:)
+                                                 name:UIApplicationDidFinishLaunchingNotification
                                                object:nil];
 }
 
@@ -78,14 +69,6 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
 	[super shutdown:sender];
 }
 
-#pragma mark Cleanup
-
--(void)dealloc
-{
-	// release any resources that have been retained by the module
-	[super dealloc];
-}
-
 #pragma mark Internal Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
@@ -114,80 +97,59 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     return obj;
 }
 
-+(void)didReceiveLocalNotification:(NSNotification*)notification {
-    //Transform a notification back to an UILocalNotification
-    NSDictionary* dictionary = [notification object];
-    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-    localNotification.fireDate = [self objectFromDictionary:dictionary forKey:@"date"];
-    NSString* timezone = [self objectFromDictionary:dictionary forKey:@"timezone"];
-    if (timezone) {
-        localNotification.timeZone = [NSTimeZone timeZoneWithName:timezone];
++(void)didFinishLaunching:(NSNotification*)notification {
+    launchOptions = notification.userInfo;
+    if (launchOptions == nil) {
+        launchOptions = [NSDictionary dictionary];
     }
-    localNotification.alertBody = [self objectFromDictionary:dictionary forKey:@"alertBody"];
-    localNotification.alertAction = [self objectFromDictionary:dictionary forKey:@"alertAction"];
-    localNotification.alertLaunchImage = [self objectFromDictionary:dictionary forKey:@"alertLaunchImage"];
-    localNotification.soundName = [self objectFromDictionary:dictionary forKey:@"sound"];
-    localNotification.applicationIconBadgeNumber = [self objectFromDictionary:dictionary forKey:@"badge"];
-    localNotification.userInfo = [self objectFromDictionary:dictionary forKey:@"userInfo"];
     
-    if (plotInitialized) {
-        [Plot handleNotification:localNotification];
+    plotDelegate = [[ComPlotprojectsTiPlotDelegate alloc] init];
+    
+    if ([@"production" isEqualToString:[TI_APPLICATION_DEPLOYTYPE lowercaseString]]) {
+        [PlotRelease initializeWithLaunchOptions:launchOptions
+                                        delegate:plotDelegate];
     } else {
-        if (notificationsToBeReceived == nil) {
-            notificationsToBeReceived = [[NSMutableArray array] retain];
-        }
-        [notificationsToBeReceived addObject:localNotification];
+        [PlotDebug initializeWithLaunchOptions:launchOptions
+                                      delegate:plotDelegate];
     }
-    [localNotification autorelease];
 }
 
 -(void)initPlot:(id)args {
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
+    NSLog(@"initPlot");
+    
     NSNumber* notificationFilterEnabled = [args objectForKey:@"notificationFilterEnabled"];
     if (notificationFilterEnabled != nil) {
-        enableNotificationFilter = [notificationFilterEnabled boolValue];
-    }
-
-    NSNumber* geotriggerHandlerEnabled = [args objectForKey:@"geotriggerHandlerEnabled"];
-    if (geotriggerHandlerEnabled != nil) {
-        enableGeotriggerHandler = [geotriggerHandlerEnabled boolValue];
+        plotDelegate.enableNotificationFilter = [notificationFilterEnabled boolValue];
     }
     
-    if  (!plotInitialized) {
-        NSString* publicToken = [args objectForKey:@"publicToken"];
-        
-        PlotConfiguration* config = [[PlotConfiguration alloc] initWithPublicKey:publicToken delegate:self];
-        
-        NSNumber* cooldownPeriod = [args objectForKey:@"cooldownPeriod"];
-        
-        if (cooldownPeriod != nil) {
-            [config setCooldownPeriod:[cooldownPeriod intValue]];
-        }
-        
-        NSNumber* enableOnFirstRun = [args objectForKey:@"enableOnFirstRun"];
-        if (enableOnFirstRun != nil) {
-            [config setEnableOnFirstRun:[enableOnFirstRun boolValue]];
-        }
-        
-        plotInitialized = YES;
-        
-        NSDictionary* launchOptions = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"plot-use-file-config"];
-        
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        if ([@"test" isEqualToString:TI_APPLICATION_DEPLOYTYPE] || [@"development" isEqualToString:TI_APPLICATION_DEPLOYTYPE]) {
-            [PlotDebug initializeWithConfiguration:config launchOptions:launchOptions];
-        } else {
-            [PlotRelease initializeWithConfiguration:config launchOptions:launchOptions];
-        }
-#pragma clang diagnostic pop
-        
-        for (UILocalNotification* n in notificationsToBeReceived) {
-            [Plot handleNotification:n];
-        }
-        notificationsToBeReceived = nil;
+    NSNumber* geotriggerHandlerEnabled = [args objectForKey:@"geotriggerHandlerEnabled"];
+    if (geotriggerHandlerEnabled != nil) {
+        plotDelegate.enableGeotriggerHandler = [geotriggerHandlerEnabled boolValue];
+    }
+    
+    NSLog(@"launch options is nil: %i", launchOptions == nil);
+    
+    if (launchOptions != nil) {
+        plotDelegate.handleNotificationDelegate = self;
+        [plotDelegate initCalled];
+        launchOptions = nil;
+    }
+}
+
+-(void)handleNotification:(UNNotificationRequest*)notification {
+    if ([self _hasListeners:@"plotNotificationReceived"]) {
+        NSDictionary* eventNotification = [ComPlotprojectsTiConversions localNotificationToDictionary:notification];
+        [self fireEvent:@"plotNotificationReceived" withObject:eventNotification];
+    } else {
+        NSString* data = [notification.content.userInfo objectForKey:@"action"];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:data] options:@{} completionHandler:^(BOOL success){
+            if(!success) {
+                NSLog(@"Unable to open URL.");
+            }
+        }];
     }
 }
 
@@ -274,182 +236,45 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
 }
 
 -(NSDictionary*)popFilterableNotifications:(id)args {
+    NSLog(@"popFilterableNotifications");
     NSMutableDictionary* result = [NSMutableDictionary dictionary];
-    [self performSelectorOnMainThread:@selector(popFilterableNotificationsOnMainThread:) withObject:result waitUntilDone:YES];
+    [plotDelegate performSelectorOnMainThread:@selector(popFilterableNotificationsOnMainThread:) withObject:result waitUntilDone:YES];
     return result;
-}
-
--(void)popFilterableNotificationsOnMainThread:(NSMutableDictionary*)result {
-    NSArray* notifications;
-    NSString* filterId = @"";
-    if (notificationsToFilter.count == 0u) {
-        notifications = @[];
-    } else {
-        PlotFilterNotifications* n = [[notificationsToFilter objectAtIndex:0] retain];
-        [notificationsToFilter removeObjectAtIndex:0];
-        
-        notifications = n.uiNotifications;
-        filterId = [NSString stringWithFormat:@"%d", filterIndex++];
-        if (notificationsBeingFiltered == nil) {
-            notificationsBeingFiltered = [[NSMutableDictionary dictionary] retain];
-        }
-        [notificationsBeingFiltered setObject:n forKey:filterId];
-        [n release];
-    }
-    
-    NSMutableArray* jsonNotifications = [NSMutableArray array];
-    for (UILocalNotification* localNotification in notifications) {
-        [jsonNotifications addObject:[self localNotificationToDictionary:localNotification]];
-    }
-    
-    [result setObject:filterId forKey:@"filterId"];
-    [result setObject:jsonNotifications forKey:@"notifications"];
-}
-
--(NSDictionary*)indexLocalNotifications:(NSArray*)notifications {
-    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithCapacity:notifications.count];
-    
-    for (UILocalNotification* notification in notifications) {
-        NSString* identifier = [notification.userInfo objectForKey:@"identifier"];
-        if (identifier != nil) {
-            [result setObject:notification forKey:identifier];
-        }
-    }
-    
-    return result;
-}
-
--(UILocalNotification*)transformNotification:(NSDictionary*)data index:(NSDictionary*)index {
-    NSString* identifier = [data objectForKey:@"identifier"];
-    if (identifier == nil) {
-        return nil;
-    }
-    UILocalNotification* localNotification = [index objectForKey:identifier];
-    
-    localNotification.alertBody = [data objectForKey:@"message"];
-    
-    NSMutableDictionary* newUserInfo = [NSMutableDictionary dictionaryWithDictionary:localNotification.userInfo];
-    
-    [newUserInfo setObject:[data objectForKey:@"message"] forKey:@"message"];
-    [newUserInfo setObject:[data objectForKey:@"data"] forKey:@"action"];
-    
-    localNotification.userInfo = newUserInfo;
-    return localNotification;
 }
 
 -(void)sendNotifications:(id)args {
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
+    NSLog(@"sendNotifications:");
+    
     NSString* filterId = [args objectForKey:@"filterId"];
     NSArray* notificationsPassed = [args objectForKey:@"notifications"];
-    if ([@"" isEqualToString:filterId]) {
+    if (filterId == nil || [@"" isEqualToString:filterId]) {
         return;
     }
-    
-    PlotFilterNotifications* filterNotifications = [[notificationsBeingFiltered objectForKey:filterId] retain];
-    [notificationsBeingFiltered removeObjectForKey:filterId];
-    
-    NSDictionary* index = [self indexLocalNotifications:filterNotifications.uiNotifications];
-    
-    NSMutableArray* result = [NSMutableArray array];
-    
-    for (NSDictionary* notificationData in notificationsPassed) {
-        UILocalNotification* localNotification = [self transformNotification:notificationData index:index];
-        if (localNotification != nil) {
-            [result addObject:localNotification];
-        }
-    }
-    
-    [filterNotifications showNotifications:result];
-    [filterNotifications release];
+    [plotDelegate showNotificationsOnMainThread:filterId notifications:notificationsPassed];
 }
 
-// Geotriggers
 -(NSDictionary*)popGeotriggers:(id)args {
     NSMutableDictionary* result = [NSMutableDictionary dictionary];
-    [self performSelectorOnMainThread:@selector(popGeotriggersOnMainThread:) withObject:result waitUntilDone:YES];
+    [plotDelegate performSelectorOnMainThread:@selector(popGeotriggersOnMainThread:) withObject:result waitUntilDone:YES];
     return result;
-}
-
--(void)popGeotriggersOnMainThread:(NSMutableDictionary*)result {
-    NSArray* geotriggers;
-    NSString* handlerId = @"";
-    if (geotriggersToHandle.count == 0u) {
-        geotriggers = @[];
-    } else {
-        PlotHandleGeotriggers* n = [[geotriggersToHandle objectAtIndex:0] retain];
-        [geotriggersToHandle removeObjectAtIndex:0];
-        
-        geotriggers = n.geotriggers;
-        handlerId = [NSString stringWithFormat:@"%d", handlerIndex++];
-        if (geotriggersBeingHandled == nil) {
-            geotriggersBeingHandled = [[NSMutableDictionary dictionary] retain];
-        }
-        [geotriggersBeingHandled setObject:n forKey:handlerId];
-        [n release];
-    }
-    
-    NSMutableArray* jsonGeotriggers = [NSMutableArray array];
-    for (PlotGeotrigger* geotrigger in geotriggers) {
-        [jsonGeotriggers addObject:[self geotriggerToDictionary:geotrigger]];
-    }
-    
-    [result setObject:handlerId forKey:@"handlerId"];
-    [result setObject:jsonGeotriggers forKey:@"geotriggers"];
-}
-
--(NSDictionary*)indexGeotriggers:(NSArray*)geotriggers {
-    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithCapacity:geotriggers.count];
-    
-    for (PlotGeotrigger* geotrigger in geotriggers) {
-        NSString* identifier = [geotrigger.userInfo objectForKey:@"identifier"];
-        if (identifier != nil) {
-            [result setObject:geotrigger forKey:identifier];
-        }
-    }
-    
-    return result;
-}
-
--(PlotGeotrigger*)transformGeotrigger:(NSDictionary*)data index:(NSDictionary*)index {
-    NSString* identifier = [data objectForKey:@"identifier"];
-    if (identifier == nil) {
-        return nil;
-    }
-    PlotGeotrigger* geotrigger = [index objectForKey:identifier];     
-    NSMutableDictionary* newUserInfo = [NSMutableDictionary dictionaryWithDictionary:geotrigger.userInfo];        
-    geotrigger.userInfo = newUserInfo;
-
-    return geotrigger;
 }
 
 -(void)markGeotriggersHandled:(id)args {
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
+    NSLog(@"markGeotriggersHandled");
+    
     NSString* handlerId = [args objectForKey:@"handlerId"];
     NSArray* geotriggersPassed = [args objectForKey:@"geotriggers"];
-    if ([@"" isEqualToString:handlerId]) {
+    if (handlerId == nil || [@"" isEqualToString:handlerId]) {
         return;
     }
     
-    PlotHandleGeotriggers* geotriggerHandler = [[geotriggersBeingHandled objectForKey:handlerId] retain];
-    [geotriggersBeingHandled removeObjectForKey:handlerId];
-    
-    NSDictionary* index = [self indexGeotriggers:geotriggerHandler.geotriggers];
-    
-    NSMutableArray* result = [NSMutableArray array];
-    
-    for (NSDictionary* geotriggerData in geotriggersPassed) {
-        PlotGeotrigger* geotrigger = [self transformGeotrigger:geotriggerData index:index];
-        if (geotrigger != nil) {
-            [result addObject:geotrigger];
-        }
-    }
-    
-    [geotriggerHandler markGeotriggersHandled:result];
-    [geotriggerHandler release];
+    [plotDelegate handleGeotriggersOnMainThread:handlerId geotriggers:geotriggersPassed];
 }
 
 -(void)setCooldownPeriod:(int)period {
@@ -460,137 +285,11 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     return [Plot version];
 }
 
--(void)plotHandleNotification:(UILocalNotification *)notification data:(NSString *)action {
-    [self handleNotification:notification];
-}
-
--(NSDictionary*)localNotificationToDictionary:(UILocalNotification*)notification {
-    NSDictionary* eventNotification = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationDataKey]], @"data",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationGeofenceLatitude]], @"geofenceLatitude",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationGeofenceLongitude]], @"geofenceLongitude",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationTrigger]], @"trigger",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationIsBeacon]], @"isBeacon",
-                                       [self nilToNSNull:notification.alertBody], @"message",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationMatchRange]], @"matchRange",
-                                       [self nilToNSNull:[notification.userInfo objectForKey:PlotNotificationHandlerType]], @"notificationHandlerType",
-                                       nil];    
-    
-    return eventNotification;
-}
-
--(NSDictionary*)geotriggerToDictionary:(PlotGeotrigger*)geotrigger {
-    NSDictionary* eventGeotrigger = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerDataKey]], @"data",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerGeofenceLatitude]], @"geofenceLatitude",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerGeofenceLongitude]], @"geofenceLongitude",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerTrigger]], @"trigger",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerIsBeacon]], @"isBeacon",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerName]], @"name",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerIdentifier]], @"identifier",
-                                       [self nilToNSNull:[geotrigger.userInfo objectForKey:PlotGeotriggerMatchRange]], @"matchRange",
-                                       nil];
-    
-    return eventGeotrigger;
-}
-
--(NSDictionary*)sentNotificationToDictionary:(PlotSentNotification*)notification {
-    NSDictionary* userInfo = notification.userInfo;
-    NSMutableDictionary* eventNotification = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationDataKey]], @"data",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationGeofenceLatitude]], @"geofenceLatitude",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationGeofenceLongitude]], @"geofenceLongitude",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationTrigger]], @"trigger",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationIsBeacon]], @"isBeacon",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMessage]], @"message",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationIdentifier]], @"identifier",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchIdentifier]], @"matchIdentifier",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchRange]], @"matchRange",
-                                       [self nilToNSNull:[userInfo objectForKey:PlotNotificationHandlerType]], @"notificationHandlerType",
-                                       @((int)[notification.dateSent timeIntervalSince1970]), @"dateSent",
-                                       nil];    
-    
-    if (notification.dateOpened != nil) {
-        [eventNotification setObject:@((int)[notification.dateOpened timeIntervalSince1970]) forKey:@"dateOpened"];
-        [eventNotification setObject:@(YES) forKey:@"isOpened"];
-    } else {
-        [eventNotification setObject:@(-1) forKey:@"dateOpened"];
-        [eventNotification setObject:@(NO) forKey:@"isOpened"];
-    }
-
-    return eventNotification;
-}
-
--(NSDictionary*)sentGeotriggerToDictionary:(PlotSentGeotrigger*)geotrigger {
-    NSDictionary* userInfo = geotrigger.userInfo;
-    NSMutableDictionary* eventGeotrigger = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerDataKey]], @"data",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerGeofenceLatitude]], @"geofenceLatitude",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerGeofenceLongitude]], @"geofenceLongitude",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerTrigger]], @"trigger",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerIsBeacon]], @"isBeacon",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerName]], @"name",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerIdentifier]], @"identifier",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotNotificationMatchIdentifier]], @"matchIdentifier",
-                                    [self nilToNSNull:[userInfo objectForKey:PlotGeotriggerMatchRange]], @"matchRange",
-                                    @((int) [geotrigger.dateSent timeIntervalSince1970]), @"dateSent",
-                                    nil];    
-    
-    if (geotrigger.dateHandled != nil) {
-        [eventGeotrigger setObject:@((int) [geotrigger.dateHandled timeIntervalSince1970]) forKey:@"dateHandled"];
-        [eventGeotrigger setObject:@(YES) forKey:@"isHandled"];
-    } else {
-        [eventGeotrigger setObject:@(-1) forKey:@"dateHandled"];
-        [eventGeotrigger setObject:@(NO) forKey:@"isHandled"];
-    }
-
-    return eventGeotrigger;
-}
-
--(void)handleNotification:(UILocalNotification*)notification {
-    if ([self _hasListeners:@"plotNotificationReceived"]) {
-        NSDictionary* eventNotification = [self localNotificationToDictionary:notification];
-        [self fireEvent:@"plotNotificationReceived" withObject:eventNotification];
-    } else {
-        NSString* data = [notification.userInfo objectForKey:@"action"];
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:data]];
-    }
-}
-
--(void)plotFilterNotifications:(PlotFilterNotifications *)filterNotifications {
-    if (enableNotificationFilter) {
-        if (notificationsToFilter == nil) {
-            notificationsToFilter = [[NSMutableArray array] retain];
-        }
-        [notificationsToFilter addObject:filterNotifications];
-        ComPlotprojectsTiNotificationFilter* filter = [[ComPlotprojectsTiNotificationFilter alloc] init];
-        [filter startFilter];
-        [self performSelector:@selector(shutdownFilter:) withObject:filter afterDelay:10];
-    } else {
-        [filterNotifications showNotifications:filterNotifications.uiNotifications];
-    }
-}
-
--(void)plotHandleGeotriggers:(PlotHandleGeotriggers *)geotriggers {
-    if (enableGeotriggerHandler) {
-        if (geotriggersToHandle == nil) {
-            geotriggersToHandle = [[NSMutableArray array] retain];
-        }
-        [geotriggersToHandle addObject:geotriggers];
-        ComPlotprojectsTiGeotriggerHandler* handler = [[ComPlotprojectsTiGeotriggerHandler alloc] init];
-        [handler startHandler];
-        [self performSelector:@selector(shutdownHandler:) withObject:handler afterDelay:10];
-    } else {
-        [geotriggers markGeotriggersHandled:geotriggers.geotriggers];
-    }
-}
-
 -(NSArray*)getLoadedNotifications:(id)args {
     NSArray* notifications = [Plot loadedNotifications];
     NSMutableArray* jsonNotifications = [NSMutableArray array];
-    for (UILocalNotification* localNotification in notifications) {
-        [jsonNotifications addObject:[self localNotificationToDictionary:localNotification]];
+    for (UNNotificationRequest* localNotification in notifications) {
+        [jsonNotifications addObject:[ComPlotprojectsTiConversions localNotificationToDictionary:localNotification]];
     }
 	return jsonNotifications;
 }
@@ -599,7 +298,7 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
 	NSArray* geotriggers = [Plot loadedGeotriggers];
 	NSMutableArray* jsonGeotriggers = [NSMutableArray array];
     for (PlotGeotrigger* geotrigger in geotriggers) {
-        [jsonGeotriggers addObject:[self geotriggerToDictionary:geotrigger]];
+        [jsonGeotriggers addObject:[ComPlotprojectsTiConversions geotriggerToDictionary:geotrigger]];
     }
 	return jsonGeotriggers;
 }
@@ -608,7 +307,7 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     NSArray* notifications = [Plot sentNotifications];
     NSMutableArray* jsonNotifications = [NSMutableArray array];
     for (PlotSentNotification* sentNotification in notifications) {
-        [jsonNotifications addObject:[self sentNotificationToDictionary:sentNotification]];
+        [jsonNotifications addObject:[ComPlotprojectsTiConversions sentNotificationToDictionary:sentNotification]];
     }
     return jsonNotifications;
 }
@@ -617,7 +316,7 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     NSArray* geotriggers = [Plot sentGeotriggers];
     NSMutableArray* jsonGeotriggers = [NSMutableArray array];
     for (PlotSentGeotrigger* sentGeotrigger in geotriggers) {
-        [jsonGeotriggers addObject:[self sentGeotriggerToDictionary:sentGeotrigger]];
+        [jsonGeotriggers addObject:[ComPlotprojectsTiConversions sentGeotriggerToDictionary:sentGeotrigger]];
     }
     return jsonGeotriggers;
 }
@@ -630,14 +329,6 @@ static NSMutableDictionary* geotriggersBeingHandled = nil;
     [Plot clearSentGeotriggers];
 }
 
--(void)shutdownFilter:(ComPlotprojectsTiNotificationFilter*)filter {
-    [filter shutdown];
-    [filter autorelease];
-}
-
--(void)shutdownHandler:(ComPlotprojectsTiGeotriggerHandler*)handler {
-    [handler shutdown];
-    [handler autorelease];
-}
-
 @end
+
+#pragma clang diagnostic pop

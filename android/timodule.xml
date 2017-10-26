@@ -9,7 +9,11 @@
 			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 			<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 			<uses-permission android:name="android.permission.VIBRATE"/>
+			<uses-permission android:name="android.permission.WAKE_LOCK" />
+			
 			<application>
+				<meta-data android:name="com.google.android.gms.version"
+   				android:value="@integer/google_play_services_version" />
 				<activity android:name="com.plotprojects.retail.android.LandingPageActivity"
                   android:configChanges="orientation|screenSize" android:exported="false" />
                   
@@ -32,9 +36,17 @@
 				<receiver android:exported="false" android:name="com.plotprojects.retail.android.OpenUriReceiver" />
 				<service android:name="com.plotprojects.titanium.NotificationFilterService" android:exported="false" />
 				<service android:name="com.plotprojects.titanium.GeotriggerHandlerService" android:exported="false" />
-				<service android:name="com.plotprojects.retail.android.PlotBackgroundService" android:exported="false">
-    				<meta-data android:name="debug" android:value="false" />
-				</service>
+				<service android:name="com.plotprojects.retail.android.PlotTaskService"
+           			android:exported="true"
+            		android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
+            		<intent-filter>
+                		<action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
+            		</intent-filter>
+       			</service>
+       			<receiver
+            		android:name="com.plotprojects.retail.android.PlotBroadcastHandler"
+            		android:label="Plot Projects Broadcast Handler"
+            		android:exported="false" />
 				
 				<provider
                 android:authorities="${tiapp.properties['id']}.plot.debuglogprovider"

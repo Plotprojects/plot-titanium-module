@@ -17,5 +17,5 @@ for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
 
 geotriggersHandler.geotriggers = geotriggersPassed;
 
-//always call plot.markGeoTriggersHandled function, even if geotriggersPassed becomes empty 
-plot.markGeoTriggersHandled(geotriggersHandler); 
+//always call plot.markGeotriggersHandled function, even if geotriggersPassed becomes empty 
+plot.markGeotriggersHandled(geotriggersHandler); 

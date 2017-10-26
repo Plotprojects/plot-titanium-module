@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.15.5
+version: VERSION
 apiversion: 3
 description: Enable the power of Location Based Notifications provided by the Plot plugin in your Titanium apps. Our module can also be found on GitHub at www.github.com/PlotProjects/plot-titanium-module and the documentation can be found at www.plotprojects.com/support
 author: Floating Market B.V.
@@ -16,4 +16,4 @@ name: plot-plugin-module
 moduleid: com.plotprojects.ti
 guid: b7xc9ood-2bky-7v8g-kdv5-cska7vengatz
 platform: android
-minsdk: 6.0.0.GA
+minsdk: 6.2.2.GA

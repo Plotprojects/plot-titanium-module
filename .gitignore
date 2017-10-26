@@ -3,6 +3,7 @@ bin
 build
 libs
 dist
+android/lib/
 *.zip
 .apt_generated
 .settings

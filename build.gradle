@@ -6,15 +6,12 @@ def githubSourceDir = 'github'
 
 def pluginVersion = System.getenv('VersionNumber')
 def iosVersionNumber = System.getenv('iOSVersionNumber').replace('.', '_').replace('-', '_')
-def androidVersionNumber = System.getenv('AndroidVersionNumber').replace('.', '_').replace('-', '_')
+def androidVersionNumber = System.getenv('AndroidVersionNumber')
 
 def iosManifest = new File('ios/manifest')
 def androidManifest = new File('android/manifest')
 
-def androidSdk = System.getenv('ANDROID_SDK')
-
 def iosZip = file('tmp/ios.zip')
-def androidZip = file('tmp/android.zip')
 
 def iosModuleZip = "ios/com.plotprojects.ti-iphone-${pluginVersion}.zip"
 def androidModuleZip = "android/dist/com.plotprojects.ti-android-${pluginVersion}.zip"
@@ -25,6 +22,35 @@ def examplePublicToken = System.getenv('PUBLIC_TOKEN')
 def gitRepo = "origin"
 def gitRepoUrl = "git@github.com:Plotprojects/plot-titanium-module.git"
 def gitRepoReleaseUrl = "github.com/repos/Plotprojects/plot-titanium-module/releases"
+
+repositories {
+  jcenter()
+  maven {
+    url 'https://maven-repo.plotprojects.com'   
+  }
+   
+  maven {//using google() when using a recent version is also possible
+    url "https://maven.google.com" 
+  }
+}
+  configurations {
+    libs
+}
+  dependencies {
+   libs("com.plotprojects:plot-android:${androidVersionNumber}") {
+     exclude group: 'com.google.firebase', module: 'firebase-core'
+     exclude module: 'support-v4'
+   } 
+}
+
+task insertAndroidLibrary(type: Copy) {
+   from configurations.libs
+   into androidSource
+   
+   String androidContents = androidManifest.getText('UTF-8')
+   androidContents = androidContents.replace('VERSION', "${pluginVersion}")
+   androidManifest.write(androidContents, 'UTF-8')
+}
 
 task clean << {
   delete file('tmp')
@@ -49,19 +75,7 @@ task extractIosReleaseZip(type: Copy, dependsOn: downloadIosReleaseZip) {
   into outputDir
 }
 
-task downloadAndroidReleaseZip(type: FileDownload) {
-  sourceUrl = "https://www.plotprojects.com/static/plugins/Plot-Android-v${androidVersionNumber}.zip"
-  target = androidZip
-}
-
-downloadAndroidReleaseZip.mustRunAfter clean
-
-task extractAndroidReleaseZip(type: Copy, dependsOn: downloadAndroidReleaseZip) {
-  def outputDir = file('tmp/android/')
-
-  from zipTree(androidZip)
-  into outputDir
-}
+insertAndroidLibrary.mustRunAfter clean
 
 task deleteOldVersionIos << {
   def objectFiles = fileTree(dir: iosSource, include: '*.a')
@@ -101,33 +115,15 @@ task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']
   }
 }
 
-task insertAndroidLibrary(dependsOn: ['extractAndroidReleaseZip', 'deleteOldVersionAndroid']) << {
-  def objectFile = fileTree(dir: 'tmp/android', include: '**/*.jar').singleFile
-
-  copy {
-    from objectFile
-    into file(androidSource)
-  }
-
-  ext.filename = objectFile.name
-  
-  String androidContents = androidManifest.getText('UTF-8')
-  androidContents = androidContents.replace('VERSION', "${pluginVersion}")
-  androidManifest.write(androidContents, 'UTF-8')
-}
-
 task buildAndroidLibrary(type: Exec, dependsOn: insertAndroidLibrary) {
-		commandLine 'appc', 'run', '--build-only'
-		workingDir 'android/'
+		commandLine 'appc', 'run', '--build-only', '--platform', 'android'
+		workingDir 'android'
 }
 
 task buildIosLibrary(type: Exec, dependsOn: insertIosLibrary) {
-	
 		commandLine 'appc', 'run', '--build-only'
 		workingDir 'ios/'
-	
 }
-
 
 task buildLibraries(dependsOn: ['buildIosLibrary', 'buildAndroidLibrary']) {
   description "Build Android and iOS libraries into the appcelerator project"
@@ -141,15 +137,7 @@ task extractIosPluginZip(type: Copy) {
   into outputDir
 }
 
-task extractAndroidPluginZip(type: Copy) {
-  def outputDir = file(exampleProjectDir)
-
-  from zipTree(androidModuleZip)
-  into outputDir
-}
-
 extractIosPluginZip.mustRunAfter clean
-extractAndroidPluginZip.mustRunAfter clean
 
 task cloneGitRepository << {
   exec {
@@ -275,7 +263,7 @@ replaceConfig << {
 }
 
 // Assumes insertLibraries and build zips for both platform have been run.
-task addPluginToExampleProject(dependsOn: ['extractIosPluginZip', 'extractAndroidPluginZip']) << {
+task addPluginToExampleProject(dependsOn: ['extractIosPluginZip']) << {
   // build example app
   exec {
   	commandLine 'appc', 'run', '--build-only', '--platform', 'android'

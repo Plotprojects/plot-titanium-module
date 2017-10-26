@@ -10,7 +10,9 @@
 //
 // How to add a Framework (example)
 //
-// OTHER_LDFLAGS=$(inherited) -framework Foo
+FRAMEWORK_SEARCH_PATHS=$(SRCROOT)/../../modules/iphone/com.plotprojects.ti/2.0.0/platform
+
+ OTHER_LDFLAGS=$(inherited) -framework PlotProjects -framework UserNotifications
 //
 // Adding a framework for a specific version(s) of iPhone:
 //

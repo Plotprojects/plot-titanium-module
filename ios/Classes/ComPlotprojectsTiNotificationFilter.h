@@ -17,6 +17,8 @@
  * and licensed under the Apache Public License (version 2)
  */
 #import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
+#import <PlotProjects/Plot.h>
 
 @class KrollBridge;
 

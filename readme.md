@@ -89,7 +89,7 @@ _plot.popGeotriggers()_
 
 Returns an object which contains the geotriggers that can be handled. The geotriggers are in the _geotriggers_ property. All properties are read-only. Only to be called from the Geotrigger Handler.
 
-_plot.markGeoTriggersHandled(geotriggers)_
+_plot.markGeotriggersHandled(geotriggers)_
 
 Sends the handled geotriggers obtained from popGeotriggers(). Only call this method once per call to popGeotriggers(). Only to be called from the Geotrigger Handler.
 
@@ -149,7 +149,7 @@ When you want to handle your geotriggers, or use them as trigger events for your
 
 You define the handler in _assets/plotgeotriggerhandler.js_. When Plot detects that a geotrigger has triggered, it executes the script. The script runs in a different context than the normal scripts are executed. Therefore you cannot reference views or global variables from the geotrigger handler.
 
-You can remove geotriggers from the array you don't want to mark as handled. Always call _plot.popGeotriggers()_ and _plot.markGeoTriggersHandled(geotriggers)_.
+You can remove geotriggers from the array you don't want to mark as handled. Always call _plot.popGeotriggers()_ and _plot.markGeotriggersHandled(geotriggers)_.
 
 An example for _assets/plotgeotriggerhandler.js_:
 ```
@@ -169,7 +169,7 @@ for (var i = 0; i < geotriggersHandler.geotriggers.length; i++) {
     Ti.API.info(JSON.stringify(geotrigger));
 }
 
-//always call plot.markGeoTriggersHandled function, even if geotriggersHandler.geotriggers becomes empty
+//always call plot.markGeotriggersHandled function, even if geotriggersHandler.geotriggers becomes empty
 plot.markGeotriggersHandled(geotriggersPassed);
 ```
 
@@ -197,11 +197,9 @@ to get a list of the 100 latest sent notifications/geotriggers.
 The list can be cleared with _plot.clearSentNotifications()_ and _plot.clearSentGeotriggers()_.
 
 ### More information ###
-Website: http://www.plotprojects.com/
+Website: https://www.plotprojects.com/
 
-Documentation: http://www.plotprojects.com/documentation
-
-Technical support: https://groups.google.com/forum/#!forum/plot-users
+Documentation: https://www.plotprojects.com/documentation/
 
 [![gitTio](http://gitt.io/badge.svg)](http://gitt.io/component/com.plotprojects.ti)
 

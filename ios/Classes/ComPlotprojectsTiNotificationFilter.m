@@ -18,9 +18,9 @@
  */
 #import <UIKit/UIKit.h>
 #import "ComPlotprojectsTiNotificationFilter.h"
-#import "TiUtils.h"
-#import "TiApp.h"
-#import "KrollBridge.h"
+#import <UserNotifications/UserNotifications.h>
+#import <PlotProjects/Plot.h>
+#import "ComPlotprojectsTiImport.h"
 
 static NSString* const notificationFilterUrl = @"plotfilter.js";
 
@@ -39,11 +39,6 @@ static NSString* const notificationFilterUrl = @"plotfilter.js";
 
 -(void)shutdown {
     [bridge shutdown:nil];
-}
-
--(void)dealloc {
-    [bridge release];
-    [super dealloc];
 }
 
 @end

@@ -16,8 +16,10 @@
  * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * and licensed under the Apache Public License (version 2)
  */
-#import "TiModule.h"
-#import "Plot.h"
 
-@interface ComPlotprojectsTiModule : TiModule<PlotDelegate> 
+#import "ComPlotprojectsTiPlotDelegate.h"
+#import <UserNotifications/UserNotifications.h>
+#import "ComPlotprojectsTiImport.h"
+
+@interface ComPlotprojectsTiModule : TiModule<ComPlotprojectsTiHandleNotificationDelegate>
 @end
