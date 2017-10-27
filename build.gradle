@@ -62,7 +62,7 @@ task clean << {
 }
 
 task downloadIosReleaseZip(type: FileDownload) {
-  sourceUrl = "https://www.plotprojects.com/static/plugins/Plot-iOS-v${iosVersionNumber}.zip"
+  sourceUrl = "https://www.plotprojects.com/static/plugins/PlotProjects-iOS-v${iosVersionNumber}.zip"
   target = iosZip
 }
 
@@ -90,29 +90,19 @@ task deleteOldVersionAndroid << {
 }
 
 task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']) << {
-  def objectFile = fileTree(dir: 'tmp/ios', include: '**/*.a').singleFile
-
-  def headerFile = fileTree(dir: 'tmp/ios', include: '**/Plot.h').singleFile
+  def objectFile = fileTree('tmp/ios/PlotProjects-v2_0_3_beta/PlotProjects.framework')
 
   copy {
     from objectFile
-    into file(iosSource)
+    into file(iosSource + "/PlotProjects.framework/")
   }
 
-  copy {
-    from headerFile
-    into file(iosSource)
-  }
-
-  ext.filename = objectFile.name
+  ext.filename = "PlotProjects.framework"
   
   String iosContents = iosManifest.getText('UTF-8')
   iosContents = iosContents.replace('VERSION', "${pluginVersion}")
   iosManifest.write(iosContents, 'UTF-8')
 
-  exec {
-    commandLine 'sed', '-i', '-e', "s/VERSION_UNDERSCORE/$iosVersionNumber/g", 'ios/plot-ios-module.xcodeproj/project.pbxproj'
-  }
 }
 
 task buildAndroidLibrary(type: Exec, dependsOn: insertAndroidLibrary) {
@@ -277,12 +267,12 @@ task addPluginToExampleProject(dependsOn: ['extractIosPluginZip']) << {
 
 addPluginToExampleProject.mustRunAfter replaceConfig
 
-task debug(dependsOn: ['clean', 'addPluginToExampleProject', 'replaceConfig']) {
+task debug(dependsOn: ['clean', 'buildLibraries', 'replaceConfig']) {
   description "Creates debug version of the library and example application"
   group "Debug"
 }
 
-task staging(dependsOn: ['clean', 'addPluginToExampleProject', 'replaceConfig']) {
+task staging(dependsOn: ['clean', 'buildLibraries', 'replaceConfig']) {
   description "Stages a release of a new version of the library and compiles example application"
   group "Release"
 }
