@@ -52,6 +52,17 @@ task insertAndroidLibrary(type: Copy) {
    androidManifest.write(androidContents, 'UTF-8')
 }
 
+task removeLicenseDependencies << {
+  file( androidSource ).list().each{
+    f -> 
+      if (f.contains("license")) {
+        delete "${androidSource}/${f}"
+      }
+  }
+}
+
+removeLicenseDependencies.mustRunAfter insertAndroidLibrary
+
 task clean << {
   delete file('tmp')
 
@@ -90,11 +101,11 @@ task deleteOldVersionAndroid << {
 }
 
 task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']) << {
-  def objectFile = fileTree('tmp/ios/PlotProjects-v2_0_3_beta/PlotProjects.framework')
+  def objectFile = "tmp/ios/PlotProjects-v${iosVersionNumber}/PlotProjects.framework"
 
   copy {
     from objectFile
-    into file(iosSource + "/PlotProjects.framework/")
+    into 'ios/platform/PlotProjects.framework'
   }
 
   ext.filename = "PlotProjects.framework"
@@ -105,14 +116,14 @@ task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']
 
 }
 
-task buildAndroidLibrary(type: Exec, dependsOn: insertAndroidLibrary) {
-		commandLine 'appc', 'run', '--build-only', '--platform', 'android'
-		workingDir 'android'
+task buildAndroidLibrary(type: Exec, dependsOn: ['insertAndroidLibrary', 'removeLicenseDependencies']) {
+    commandLine 'appc', 'run', '--build-only', '--platform', 'android'
+    workingDir 'android'
 }
 
 task buildIosLibrary(type: Exec, dependsOn: insertIosLibrary) {
-		commandLine 'appc', 'run', '--build-only'
-		workingDir 'ios/'
+    commandLine 'appc', 'run', '--build-only'
+    workingDir 'ios/'
 }
 
 task buildLibraries(dependsOn: ['buildIosLibrary', 'buildAndroidLibrary']) {
@@ -256,12 +267,12 @@ replaceConfig << {
 task addPluginToExampleProject(dependsOn: ['extractIosPluginZip']) << {
   // build example app
   exec {
-  	commandLine 'appc', 'run', '--build-only', '--platform', 'android'
-  	workingDir 'plotprojects-example/'
+    commandLine 'appc', 'run', '--build-only', '--platform', 'android'
+    workingDir 'plotprojects-example/'
   }
   exec {
-		commandLine 'appc', 'run', '--build-only', '--platform', 'iphone'
-		workingDir 'plotprojects-example/'
+    commandLine 'appc', 'run', '--build-only', '--platform', 'iphone'
+    workingDir 'plotprojects-example/'
   }
 }
 
