@@ -101,7 +101,7 @@ task deleteOldVersionAndroid << {
 }
 
 task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']) << {
-  def objectFile = "tmp/ios/PlotProjects-v${iosVersionNumber}/PlotProjects.framework"
+  def objectFile = fileTree('tmp/ios/PlotProjects-${iosVersionNumber}/PlotProjects.framework')
 
   copy {
     from objectFile
