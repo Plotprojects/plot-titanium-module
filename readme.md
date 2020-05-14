@@ -1,4 +1,4 @@
-Plot Appcelerator Titanium module
+﻿Plot Appcelerator Titanium module
 =================================
 A module for Appcelerator Titanium apps that adds location based notifications to your app.
 
@@ -7,13 +7,16 @@ A module for Appcelerator Titanium apps that adds location based notifications t
 This module was developed for Titanium 3.1.3.GA or newer.
 This plugins supports both IOS and Android.
 
-### Installation ###
 
-Follow the integration guide at our website: [http://www.plotprojects.com/appcelerator-integration/](http://www.plotprojects.com/appcelerator-integration/)
+### Integration ###
+
+You can find the full integration guide at our website:
+
+:book: [Full Integration Guide](https://files.plotprojects.com/documentation/#appcelerator-integration):book: [Quick Integration Guide](https://www.plotprojects.com/quick-install#appcelerator)
 
 ### Configuration ###
 
-Additional settings are possible using the `plotconfig.json` configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](http://www.plotprojects.com/appcelerator-integration/). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
+Additional settings are possible using the `plotconfig.json` configuration file, an example is shown below. More information about where to place the configuration file, please have a look at [the integration guide](https://files.plotprojects.com/documentation/#appcelerator-integration). The publicToken and enableOnFirstRun fields are required, the notificationSmallIcon, notificationAccentColor and askPermissionAgainAfterDays options are Android only, the maxRegionsMonitored is an iOS only setting.
 	
 Information about these settings can be found in our extensive documentation, in chapter 1.4: [http://www.plotprojects.com/documentation#ConfigurationFile](http://www.plotprojects.com/documentation#ConfigurationFile)
 
