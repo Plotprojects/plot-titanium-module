@@ -32,7 +32,7 @@
         notificationsToFilterQueued = [[NSMutableArray alloc] init];
         geotriggersToHandleQueued = [[NSMutableArray alloc] init];
         
-        NSLog(@"Init ComPlotprojectsTiPlotDelegate");
+        //NSLog(@"Init ComPlotprojectsTiPlotDelegate");
     }
     return self;
 }
@@ -40,19 +40,19 @@
 -(void)initCalled {
     plotInitCalled = YES;
     
-    NSLog(@"number of notifications to filter: %ld", notificationsToFilterQueued.count);
+    //NSLog(@"number of notifications to filter: %ld", notificationsToFilterQueued.count);
     for (PlotFilterNotifications* n in notificationsToFilterQueued) {
         [self plotFilterNotificationsAfterInit:n];
     }
     [notificationsToFilterQueued removeAllObjects];
 
-    NSLog(@"number of notifications to handle %ld", notificationsToHandleQueued.count);
+    //NSLog(@"number of notifications to handle %ld", notificationsToHandleQueued.count);
     for (UNNotificationRequest* n in notificationsToHandleQueued) {
         [handleNotificationDelegate handleNotification:n];
     }
     [notificationsToHandleQueued removeAllObjects];
 
-    NSLog(@"number of geotriggers to handle %ld", geotriggersToHandleQueued.count);
+    //NSLog(@"number of geotriggers to handle %ld", geotriggersToHandleQueued.count);
     for (PlotHandleGeotriggers* g in geotriggersToHandleQueued) {
         [self plotHandleGeotriggersAfterInit:g];
     }
@@ -60,9 +60,9 @@
 }
 
 -(void)plotHandleNotification:(UNNotificationRequest*)notification data:(NSString*)data {
-    NSLog(@"plotHandleNotification");
+    //NSLog(@"plotHandleNotification");
     if (plotInitCalled) {
-        NSLog(@"Handling notification... %@", notification.content.userInfo);
+        //NSLog(@"Handling notification... %@", notification.content.userInfo);
         [handleNotificationDelegate handleNotification:notification];
     } else {
         [notificationsToHandleQueued addObject:notification];
@@ -70,10 +70,10 @@
 }
 
 -(void)showNotificationsOnMainThread:(NSString *)filterId notifications:(NSArray *)notificationsPassed {
-    NSLog(@"showNotificationsOnMainThread");
+    //NSLog(@"showNotificationsOnMainThread");
     PlotFilterNotifications* filterNotifications = [notificationsBeingFiltered objectForKey:filterId];
     if (filterNotifications == nil) {
-        NSLog(@"Unknown filter with id: %@", filterId);
+        //NSLog(@"Unknown filter with id: %@", filterId);
         return;
     }
     
@@ -94,10 +94,10 @@
 }
 
 -(void)handleGeotriggersOnMainThread:(NSString*)handlerId geotriggers:(NSArray*)geotriggersPassed {
-    NSLog(@"handleGeotriggersOnMainThread");
+    //NSLog(@"handleGeotriggersOnMainThread");
     PlotHandleGeotriggers* geotriggerHandler = [geotriggersBeingHandled objectForKey:handlerId];
     if (geotriggerHandler == nil) {
-        NSLog(@"Unknown handler with id: %@", handlerId);
+        //NSLog(@"Unknown handler with id: %@", handlerId);
         return;
     }
     
@@ -135,7 +135,7 @@
     
     for (UNNotificationRequest* notification in notifications) {
         if (![notification isKindOfClass:[UNNotificationRequest class]]) {
-            NSLog(@"Wrong type, expected UNNotificationRequest, got %@", NSStringFromClass([notification class]));
+            //NSLog(@"Wrong type, expected UNNotificationRequest, got %@", NSStringFromClass([notification class]));
             continue;
         }
         
@@ -150,17 +150,17 @@
 
 -(void)plotFilterNotifications:(PlotFilterNotifications*)notification {
     if (plotInitCalled) {
-        NSLog(@"Delegate defined, filtering notification...");
+        //NSLog(@"Delegate defined, filtering notification...");
         [self plotFilterNotificationsAfterInit:notification];
     } else {
-        NSLog(@"Delegate undefined, not filtering");
+        //NSLog(@"Delegate undefined, not filtering");
         [notificationsToFilterQueued addObject:notification];
     }
 }
 
 -(void)plotFilterNotificationsAfterInit:(PlotFilterNotifications *)filterNotifications {
     if (enableNotificationFilter) {
-        NSLog(@"Size of list to filter id %ld", notificationsToFilter.count);
+        //NSLog(@"Size of list to filter id %ld", notificationsToFilter.count);
 
         [notificationsToFilter addObject:filterNotifications];
         
@@ -168,13 +168,13 @@
         [filter startFilter];
         [self performSelector:@selector(shutdownFilter:) withObject:filter afterDelay:10];
     } else {
-        NSLog(@"showNotifications");
+        //NSLog(@"showNotifications");
         [filterNotifications showNotifications:filterNotifications.uiNotifications];
     }
 }
 
 -(void)plotHandleGeotriggers:(PlotHandleGeotriggers*)geotrigger {
-    NSLog(@"plotHandleGeotriggers");
+    //NSLog(@"plotHandleGeotriggers");
     if (plotInitCalled) {
         [self plotHandleGeotriggersAfterInit:geotrigger];
     } else {
@@ -184,13 +184,13 @@
 
 -(void)plotHandleGeotriggersAfterInit:(PlotHandleGeotriggers *)geotriggers {
     if (enableGeotriggerHandler) {
-        NSLog(@"plotHandleGeotriggersAfterInit filter");
+        //NSLog(@"plotHandleGeotriggersAfterInit filter");
         [geotriggersToHandle addObject:geotriggers];
         ComPlotprojectsTiGeotriggerHandler* handler = [[ComPlotprojectsTiGeotriggerHandler alloc] init];
         [handler startHandler];
         [self performSelector:@selector(shutdownHandler:) withObject:handler afterDelay:10];
     } else {
-        NSLog(@"markGeotriggersHandled:");
+        //NSLog(@"markGeotriggersHandled:");
         [geotriggers markGeotriggersHandled:geotriggers.geotriggers];
     }
 }
@@ -208,14 +208,14 @@
     NSString* filterId = @"";
     
     if (notificationsToFilter.count == 0u) {
-        NSLog(@"pop1 number of notifications to filter %ld", notificationsToFilter.count);
+        //NSLog(@"pop1 number of notifications to filter %ld", notificationsToFilter.count);
         notifications = @[];
     } else {
         PlotFilterNotifications* n = [notificationsToFilter objectAtIndex:0];
         [notificationsToFilter removeObjectAtIndex:0];
         
         notifications = n.uiNotifications;
-        NSLog(@"pop2 number of notifications to filter %ld", notificationsToFilter.count);
+        //NSLog(@"pop2 number of notifications to filter %ld", notificationsToFilter.count);
 
         filterId = [NSString stringWithFormat:@"%d", filterIndex++];
         [notificationsBeingFiltered setObject:n forKey:filterId];
