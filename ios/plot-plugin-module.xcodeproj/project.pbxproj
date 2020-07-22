@@ -32,9 +32,9 @@
 		4D559F67193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D559F65193E034A000FDF24 /* ComPlotprojectsTiNotificationFilter.m */; };
 		4DE408541F99ED4900EA389B /* ComPlotprojectsTiConversions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DE408521F99ED4900EA389B /* ComPlotprojectsTiConversions.h */; };
 		4DE408551F99ED4900EA389B /* ComPlotprojectsTiConversions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DE408531F99ED4900EA389B /* ComPlotprojectsTiConversions.m */; };
+		94A8D22F24C7074E0026CBAF /* PlotProjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94A8D22E24C7074E0026CBAF /* PlotProjects.framework */; };
 		AA747D9F0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
-		BC2A60201F8E484D00482203 /* PlotProjects.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC2A601F1F8E480F00482203 /* PlotProjects.framework */; };
 		BCD848FD1F853208009A90B9 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCD848FC1F853208009A90B9 /* UserNotifications.framework */; };
 		BCD849001F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = BCD848FE1F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.h */; };
 		BCD849011F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BCD848FF1F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.m */; };
@@ -63,11 +63,11 @@
 		4D6A19F31F9E2EF60064F05C /* ComPlotprojectsTiImport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ComPlotprojectsTiImport.h; sourceTree = "<group>"; };
 		4DE408521F99ED4900EA389B /* ComPlotprojectsTiConversions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ComPlotprojectsTiConversions.h; sourceTree = "<group>"; };
 		4DE408531F99ED4900EA389B /* ComPlotprojectsTiConversions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ComPlotprojectsTiConversions.m; sourceTree = "<group>"; };
+		94A8D22E24C7074E0026CBAF /* PlotProjects.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PlotProjects.framework; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* ComPlotprojectsTi_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComPlotprojectsTi_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		BC2A601B1F8D29F000482203 /* PlotProjects.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PlotProjects.framework; path = platform/PlotProjects.framework; sourceTree = "<group>"; };
 		BC2A601D1F8E159300482203 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		BC2A601F1F8E480F00482203 /* PlotProjects.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PlotProjects.framework; path = platform/PlotProjects.framework; sourceTree = "<group>"; };
 		BCD848FC1F853208009A90B9 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		BCD848FE1F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ComPlotprojectsTiPlotDelegate.h; path = Classes/ComPlotprojectsTiPlotDelegate.h; sourceTree = "<group>"; };
 		BCD848FF1F862868009A90B9 /* ComPlotprojectsTiPlotDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ComPlotprojectsTiPlotDelegate.m; path = Classes/ComPlotprojectsTiPlotDelegate.m; sourceTree = "<group>"; };
@@ -79,9 +79,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94A8D22F24C7074E0026CBAF /* PlotProjects.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
 				BCD848FD1F853208009A90B9 /* UserNotifications.framework in Frameworks */,
-				BC2A60201F8E484D00482203 /* PlotProjects.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +99,7 @@
 		0867D691FE84028FC02AAC07 /* plot-ios-module */ = {
 			isa = PBXGroup;
 			children = (
-				BC2A601F1F8E480F00482203 /* PlotProjects.framework */,
+				94A8D22E24C7074E0026CBAF /* PlotProjects.framework */,
 				BC2A601D1F8E159300482203 /* UserNotifications.framework */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,

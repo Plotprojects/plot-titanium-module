@@ -1,6 +1,0 @@
-framework module PlotProjects {
-    umbrella header "Plot.h"
-    
-    export *
-    module * { export * }
-}

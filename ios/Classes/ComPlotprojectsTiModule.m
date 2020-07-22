@@ -106,11 +106,11 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     plotDelegate = [[ComPlotprojectsTiPlotDelegate alloc] init];
     
     if ([@"production" isEqualToString:[TI_APPLICATION_DEPLOYTYPE lowercaseString]]) {
-        [PlotRelease initializeWithLaunchOptions:launchOptions
-                                        delegate:plotDelegate];
+       
+        [PlotRelease initializeWithDelegate:plotDelegate];
     } else {
-        [PlotDebug initializeWithLaunchOptions:launchOptions
-                                      delegate:plotDelegate];
+
+         [PlotDebug initializeWithDelegate:plotDelegate];
     }
 }
 
