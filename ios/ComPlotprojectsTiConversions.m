@@ -112,7 +112,7 @@
     }
     UNNotificationRequest* notificationRequest = [index objectForKey:identifier];
     if (![notificationRequest isKindOfClass:[UNNotificationRequest class]]) {
-        NSLog(@"UNNotificationRequest is of wrong type, %@", NSStringFromClass([notificationRequest class]));
+        //NSLog(@"UNNotificationRequest is of wrong type, %@", NSStringFromClass([notificationRequest class]));
         return nil;
     }
     
@@ -147,7 +147,7 @@
     }
     PlotGeotrigger* geotrigger = [index objectForKey:identifier];
     if (![geotrigger isKindOfClass:[PlotGeotrigger class]]) {
-        NSLog(@"PlotGeotrigger is of wrong type, %@", NSStringFromClass([PlotGeotrigger class]));
+        //NSLog(@"PlotGeotrigger is of wrong type, %@", NSStringFromClass([PlotGeotrigger class]));
         return nil;
     }
     NSMutableDictionary* newUserInfo = [NSMutableDictionary dictionaryWithDictionary:geotrigger.userInfo];

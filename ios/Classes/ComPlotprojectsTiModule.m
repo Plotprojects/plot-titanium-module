@@ -106,11 +106,10 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     plotDelegate = [[ComPlotprojectsTiPlotDelegate alloc] init];
     
     if ([@"production" isEqualToString:[TI_APPLICATION_DEPLOYTYPE lowercaseString]]) {
-       
-        [PlotRelease initializeWithDelegate:plotDelegate];
-    } else {
+      [PlotRelease initializeWithDelegate:plotDelegate];
+           } else {
 
-         [PlotDebug initializeWithDelegate:plotDelegate];
+                [PlotDebug initializeWithDelegate:plotDelegate];
     }
 }
 
@@ -118,7 +117,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
-    NSLog(@"initPlot");
+    //NSLog(@"initPlot");
     
     NSNumber* notificationFilterEnabled = [args objectForKey:@"notificationFilterEnabled"];
     if (notificationFilterEnabled != nil) {
@@ -130,7 +129,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
         plotDelegate.enableGeotriggerHandler = [geotriggerHandlerEnabled boolValue];
     }
     
-    NSLog(@"launch options is nil: %i", launchOptions == nil);
+    //NSLog(@"launch options is nil: %i", launchOptions == nil);
     
     if (launchOptions != nil) {
         plotDelegate.handleNotificationDelegate = self;
@@ -147,7 +146,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
         NSString* data = [notification.content.userInfo objectForKey:@"action"];
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:data] options:@{} completionHandler:^(BOOL success){
             if(!success) {
-                NSLog(@"Unable to open URL.");
+                //NSLog(@"Unable to open URL.");
             }
         }];
     }
@@ -212,7 +211,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     NSNumber* value = nil;
     ENSURE_ARG_AT_INDEX(value, args, 1, NSNumber);
     
-    NSLog(@"%@", value);
+    //NSLog(@"%@", value);
     
     [Plot setDoubleSegmentationProperty:[value doubleValue] forKey:key];
 }
@@ -236,7 +235,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
 }
 
 -(NSDictionary*)popFilterableNotifications:(id)args {
-    NSLog(@"popFilterableNotifications");
+    //NSLog(@"popFilterableNotifications");
     NSMutableDictionary* result = [NSMutableDictionary dictionary];
     [plotDelegate performSelectorOnMainThread:@selector(popFilterableNotificationsOnMainThread:) withObject:result waitUntilDone:YES];
     return result;
@@ -246,7 +245,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
-    NSLog(@"sendNotifications:");
+    //NSLog(@"sendNotifications:");
     
     NSString* filterId = [args objectForKey:@"filterId"];
     NSArray* notificationsPassed = [args objectForKey:@"notifications"];
@@ -266,7 +265,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
-    NSLog(@"markGeotriggersHandled");
+    //NSLog(@"markGeotriggersHandled");
     
     NSString* handlerId = [args objectForKey:@"handlerId"];
     NSArray* geotriggersPassed = [args objectForKey:@"geotriggers"];

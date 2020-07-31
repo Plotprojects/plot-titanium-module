@@ -9,7 +9,6 @@
 #pragma clang diagnostic ignored "-Wavailability"
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 
-//#import <TitaniumKit/TiApp.h>
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiApp.h"
