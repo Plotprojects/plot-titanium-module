@@ -1,307 +1,51 @@
-import groovy.json.JsonSlurper
 
-def iosSource = 'ios'
-def androidSource = 'android/lib'
-def githubSourceDir = 'github'
-
-def pluginVersion = System.getenv('VersionNumber')
-def iosVersionNumber = System.getenv('iOSVersionNumber').replace('.', '_').replace('-', '_')
-def androidVersionNumber = System.getenv('AndroidVersionNumber')
-
-def iosManifest = new File('ios/manifest')
-def androidManifest = new File('android/manifest')
-
-def iosZip = file('tmp/ios.zip')
-
-def iosModuleZip = "ios/com.plotprojects.ti-iphone-${pluginVersion}.zip"
-def androidModuleZip = "android/dist/com.plotprojects.ti-android-${pluginVersion}.zip"
-
-def exampleProjectDir = "plotprojects-example"
-def examplePublicToken = System.getenv('PUBLIC_TOKEN')
-
-def gitRepo = "origin"
-def gitRepoUrl = "git@github.com:Plotprojects/plot-titanium-module.git"
-def gitRepoReleaseUrl = "github.com/repos/Plotprojects/plot-titanium-module/releases"
 
 repositories {
   jcenter()
+
   maven {
     url 'https://maven-repo.plotprojects.com'   
   }
-   
   maven {//using google() when using a recent version is also possible
-    url "https://maven.google.com" 
+    url "https://maven.google.com"
   }
+
 }
-  configurations {
-    libs
+def androidVersionNumber = System.getenv('AndroidVersionNumber')
+
+configurations {
+  libs
 }
+
   dependencies {
    libs("com.plotprojects:plot-android:${androidVersionNumber}") {
      exclude group: 'com.google.firebase', module: 'firebase-core'
      exclude module: 'support-v4'
-   } 
-}
-
-task insertAndroidLibrary(type: Copy) {
-   from configurations.libs
-   into androidSource
-   
-   String androidContents = androidManifest.getText('UTF-8')
-   androidContents = androidContents.replace('VERSION', "${pluginVersion}")
-   androidManifest.write(androidContents, 'UTF-8')
-}
-
-task removeLicenseDependencies << {
-  file( androidSource ).list().each{
-    f -> 
-      if (f.contains("license")) {
-        delete "${androidSource}/${f}"
-      }
-  }
-}
-
-removeLicenseDependencies.mustRunAfter insertAndroidLibrary
-
-task clean << {
-  delete file('tmp')
-
-  def modulesDir = exampleProjectDir + "/modules"
-  file( modulesDir ).list().each{
-    f -> delete "${modulesDir}/${f}"
-  }
-}
-
-task downloadIosReleaseZip(type: FileDownload) {
-  sourceUrl = "https://www.plotprojects.com/static/plugins/PlotProjects-iOS-v${iosVersionNumber}.zip"
-  target = iosZip
-}
-
-downloadIosReleaseZip.mustRunAfter clean
-
-task extractIosReleaseZip(type: Copy, dependsOn: downloadIosReleaseZip) {
-  def outputDir = file('tmp/ios/')
-
-  from zipTree(iosZip)
-  into outputDir
-}
-
-insertAndroidLibrary.mustRunAfter clean
-
-task deleteOldVersionIos << {
-  def objectFiles = fileTree(dir: iosSource, include: '*.a')
-
-  delete objectFiles.files
-}
-
-task deleteOldVersionAndroid << {
-  def objectFiles = fileTree(dir: androidSource, include: '**/*.jar')
-
-  delete objectFiles.files
-}
-
-task insertIosLibrary(dependsOn: ['extractIosReleaseZip', 'deleteOldVersionIos']) << {
-  def objectFile = fileTree('tmp/ios/PlotProjects-${iosVersionNumber}/PlotProjects.framework')
-
-  copy {
-    from objectFile
-    into 'ios/platform/PlotProjects.framework'
-  }
-
-  ext.filename = "PlotProjects.framework"
-  
-  String iosContents = iosManifest.getText('UTF-8')
-  iosContents = iosContents.replace('VERSION', "${pluginVersion}")
-  iosManifest.write(iosContents, 'UTF-8')
-
-}
-
-task buildAndroidLibrary(type: Exec, dependsOn: ['insertAndroidLibrary', 'removeLicenseDependencies']) {
-    commandLine 'appc', 'run', '--build-only', '--platform', 'android'
-    workingDir 'android'
-}
-
-task buildIosLibrary(type: Exec, dependsOn: insertIosLibrary) {
-    commandLine 'appc', 'run', '--build-only'
-    workingDir 'ios/'
-}
-
-task buildLibraries(dependsOn: ['buildIosLibrary', 'buildAndroidLibrary']) {
-  description "Build Android and iOS libraries into the appcelerator project"
-
-}
-
-task extractIosPluginZip(type: Copy) {
-  def outputDir = file(exampleProjectDir)
-
-  from zipTree(iosModuleZip)
-  into outputDir
-}
-
-extractIosPluginZip.mustRunAfter clean
-
-task cloneGitRepository << {
-  exec {
-    commandLine 'rm', '-rf', githubSourceDir
-  }
-  exec {
-    commandLine 'mkdir', githubSourceDir
-  }
-  exec {
-    commandLine 'git', 'clone', gitRepoUrl, githubSourceDir
-  }
-}
-
-task clearGitRepository(dependsOn: cloneGitRepository) << {
-  def objectFiles = fileTree(dir: githubSourceDir, include: '**/*')
-
-  delete objectFiles.files
-}
-
-task copyRepository(dependsOn: clearGitRepository) << {  
-  copy {
-    from  fileTree(dir: '.', exclude: ['tmp', githubSourceDir])
-    into githubSourceDir    
-  }
-}
-
-task createGitCommit(dependsOn: copyRepository) << {  
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'add', '--all'
-  }
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'commit', '-m', "Release of ${pluginVersion}"
-  }
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'push', gitRepo, 'master'
-  }
-}
-
-task createGitTag(dependsOn: createGitCommit) << {
-  def androidTagName = "android-${pluginVersion}"
-  def iosTagName = "iphone-${pluginVersion}"
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'tag', androidTagName
-  }
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'tag', iosTagName
-  }
-  exec {
-    workingDir githubSourceDir
-    commandLine 'git', 'push', gitRepo, '--tags'
-  }
-}
-
-task publishAndroidGitHub << {
-  def jsonSlurper = new JsonSlurper()  
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "--data", "'{\"tag_name\":\"android-${pluginVersion}\"}'", "https://api." + gitRepoReleaseUrl, "--netrc"
-  }
-
-  def output = new ByteArrayOutputStream()
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "https://api." + gitRepoReleaseUrl + "/latest", "--netrc"
-    standardOutput = output
-  }
-
-  def s = output.toString()
-  def json = jsonSlurper.parseText(s)
-  def releaseId = json.id
-
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', androidModuleZip, "https://uploads." + gitRepoReleaseUrl + "/${releaseId}/assets"
-  }
-}
-
-task publishIOSGitHub << {
-  def jsonSlurper = new JsonSlurper()  
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "--data", "'{\"tag_name\":\"iphone-${pluginVersion}}\"}'", "https://api." + gitRepoReleaseUrl, "--netrc"
-  }
-
-  def output = new ByteArrayOutputStream()
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "https://api." + gitRepoReleaseUrl + "/latest", "--netrc"
-    standardOutput = output
-  }
-
-  def s = output.toString()
-  def json = jsonSlurper.parseText(s)
-  def releaseId = json.id
-
-  exec {
-    workingDir githubSourceDir
-    commandLine "curl", "-H", "Content-Type: application/zip", '--data-binary', iosModuleZip, "https://uploads." + gitRepoReleaseUrl + "/${releaseId}/assets"
-  }
-}
-
-publishAndroidGitHub.mustRunAfter createGitTag
-publishIOSGitHub.mustRunAfter createGitTag
-
-task replaceConfig {
-  description "Replaces the public token for the example app"
-  group "Release"
-  onlyIf { examplePublicToken != null }
-}
-
-replaceConfig << {
-  def newConfig = """{
-    |"publicToken": "${examplePublicToken}",
-    |"enableOnFirstRun": true
-    |}""".stripMargin()
-
-  new File('plotprojects-example/app/assets/plotconfig.json').write(newConfig)
-}
-
-// Assumes insertLibraries and build zips for both platform have been run.
-task addPluginToExampleProject(dependsOn: ['extractIosPluginZip']) << {
-  // build example app
-  exec {
-    commandLine 'appc', 'run', '--build-only', '--platform', 'android'
-    workingDir 'plotprojects-example/'
-  }
-  exec {
-    commandLine 'appc', 'run', '--build-only', '--platform', 'iphone'
-    workingDir 'plotprojects-example/'
-  }
-}
-
-addPluginToExampleProject.mustRunAfter replaceConfig
-
-task debug(dependsOn: ['clean', 'buildLibraries', 'replaceConfig']) {
-  description "Creates debug version of the library and example application"
-  group "Debug"
-}
-
-task staging(dependsOn: ['clean', 'buildLibraries', 'replaceConfig']) {
-  description "Stages a release of a new version of the library and compiles example application"
-  group "Release"
-}
-
-task release(dependsOn: ['staging', 'publishAndroidGitHub', 'publishIOSGitHub', 'createGitTag']) {
-  description "Releases a new version of the library and pushes to GitHub"
-  group "Release"
-}
-
-class FileDownload extends DefaultTask {
-  @Input
-  String sourceUrl
-
-  @OutputFile
-  File target
-
-  @TaskAction
-  void download() {
-     ant.get(src: sourceUrl, dest: target)
    }
- }
+      implementation 'com.plotprojects:plot-android:3.11.0'
+      implementation 'androidx.core:core:1.1.0'
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
