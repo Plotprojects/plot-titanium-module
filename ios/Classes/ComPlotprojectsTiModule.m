@@ -22,7 +22,6 @@
 #import "ComPlotprojectsTiConversions.h"
 #import <UserNotifications/UserNotifications.h>
 #import <PlotProjects/Plot.h>
-
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 static NSDictionary* launchOptions;
@@ -38,6 +37,11 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
                                              selector:@selector(didFinishLaunching:)
                                                  name:UIApplicationDidFinishLaunchingNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver: self
+    selector:@selector(handleLocationUpdate:)
+        name:PlotLocationUpdateMessageName
+      object:nil];
+    
 }
 
 #pragma mark Internal
@@ -111,6 +115,34 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
 
                 [PlotDebug initializeWithDelegate:plotDelegate];
     }
+   
+}
+-(void)handleLocationUpdate:(NSNotification*)notification {
+    PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
+    //store or do something with the location     TiApp* app = [[TiApp app] fireEvent:"" withObject: remove: context: thisObject:];
+          NSDictionary* eventNotification = [NSDictionary dictionary];
+  UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+   content.title = [NSString localizedUserNotificationStringForKey:@"Wake up!" arguments:nil];
+   content.body = [NSString localizedUserNotificationStringForKey:@"Rise and shine! It's morning time!"
+           arguments:nil];
+    
+   // Configure the trigger for a 7am wakeup.
+   NSDateComponents* date = [[NSDateComponents alloc] init];
+    date.second = 10;
+   UNCalendarNotificationTrigger* trigger = [UNCalendarNotificationTrigger
+          triggerWithDateMatchingComponents:date repeats:NO];
+    
+   // Create the request object.
+   UNNotificationRequest* request = [UNNotificationRequest
+          requestWithIdentifier:@"MorningAlarm" content:content trigger:trigger];
+
+     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"%@", error.localizedDescription);
+        }
+     }];
+   //  [self fireEvent:@"PlotLocationUpdateMessageName" withObject:eventNotification];
 }
 
 -(void)initPlot:(id)args {

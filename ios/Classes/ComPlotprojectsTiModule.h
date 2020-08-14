@@ -22,4 +22,5 @@
 #import "ComPlotprojectsTiImport.h"
 
 @interface ComPlotprojectsTiModule : TiModule<ComPlotprojectsTiHandleNotificationDelegate>
+
 @end
