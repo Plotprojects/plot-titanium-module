@@ -37,6 +37,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
                                              selector:@selector(didFinishLaunching:)
                                                  name:UIApplicationDidFinishLaunchingNotification
                                                object:nil];
+    // add observer/listner to the plotProject event PlotLocationUpdateMessageName which gets call on location change
     [[NSNotificationCenter defaultCenter] addObserver: self
     selector:@selector(handleLocationUpdate:)
         name:PlotLocationUpdateMessageName
@@ -117,18 +118,26 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     }
    
 }
--(void)handleLocationUpdate:(NSNotification*)notification {
++(void)handleLocationUpdate:(NSNotification*)notification {
+    //
     PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
-    //store or do something with the location     TiApp* app = [[TiApp app] fireEvent:"" withObject: remove: context: thisObject:];
+    //store or do something with the location
+ 
           NSDictionary* eventNotification = [NSDictionary dictionary];
+    //TODO: Once the 'Unrecognized selector sent to class' fix change the eventNotification with receivedLocation
+        // this fired event should be capture at js side
+        // [self fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+    [[[ComPlotprojectsTiModule alloc] init] fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+    
+   //notification code to notify location change
   UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
    content.title = [NSString localizedUserNotificationStringForKey:@"Wake up!" arguments:nil];
    content.body = [NSString localizedUserNotificationStringForKey:@"Rise and shine! It's morning time!"
            arguments:nil];
     
-   // Configure the trigger for a 7am wakeup.
+   // Configure the trigger after  .
    NSDateComponents* date = [[NSDateComponents alloc] init];
-    date.second = 10;
+    date.minute = date.minute + 1;
    UNCalendarNotificationTrigger* trigger = [UNCalendarNotificationTrigger
           triggerWithDateMatchingComponents:date repeats:NO];
     
@@ -142,7 +151,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
             NSLog(@"%@", error.localizedDescription);
         }
      }];
-   //  [self fireEvent:@"PlotLocationUpdateMessageName" withObject:eventNotification];
+   
 }
 
 -(void)initPlot:(id)args {
