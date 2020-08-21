@@ -120,6 +120,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
 
 }
 +(void)handleLocationUpdate:(NSNotification*)notification {
+     NSLog(@"PlotProjects.fired event self");
     //
     PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
     //store or do something with the location
@@ -127,7 +128,9 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
           NSDictionary* eventNotification = [NSDictionary dictionary];
     //TODO: Once the 'Unrecognized selector sent to class' fix change the eventNotification with receivedLocation
         // this fired event should be capture at js side
-        // [self fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+    NSLog(@"PlotProjects.fired event self");
+       //  [self fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+     NSLog(@"PlotProjects.fired event ComPlotprojectsTiModule")
     [[[ComPlotprojectsTiModule alloc] init] fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
 
    //notification code to notify location change
