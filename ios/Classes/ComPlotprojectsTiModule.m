@@ -39,10 +39,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
                                                  name:UIApplicationDidFinishLaunchingNotification
                                                object:nil];
     // add observer/listner to the plotProject event PlotLocationUpdateMessageName which gets call on location change
-    [[NSNotificationCenter defaultCenter] addObserver: self
-    selector:@selector(handleLocationUpdate:)
-        name:PlotLocationUpdateMessageName
-      object:nil];
+   
 
 }
 
@@ -119,42 +116,43 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     }
 
 }
-+(void)handleLocationUpdate:(NSNotification*)notification {
-     NSLog(@"PlotProjects.fired event self");
+-(void)handleLocationUpdate:(NSNotification*)notification {
+     NSLog(@"PlotProjects called handleLocationUpdate");
     //
     PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
     //store or do something with the location
 
-          NSDictionary* eventNotification = [NSDictionary dictionary];
-    //TODO: Once the 'Unrecognized selector sent to class' fix change the eventNotification with receivedLocation
         // this fired event should be capture at js side
-    NSLog(@"PlotProjects.fired event self");
-       //  [self fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+    NSLog(@"PlotProjects.fired event self %ld",receivedLocation.latitude);
+   // [self fireInternalEvent:notification];
+    [super fireEvent:@"PlotLocationUpdateMessageName"];
+     
+      //  [super  fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
      NSLog(@"PlotProjects.fired event ComPlotprojectsTiModule")
-    [[[ComPlotprojectsTiModule alloc] init] fireEvent:PlotLocationUpdateMessageName withObject:eventNotification];
+    // [self fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
 
    //notification code to notify location change
-  UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-   content.title = [NSString localizedUserNotificationStringForKey:@"Wake up!" arguments:nil];
-   content.body = [NSString localizedUserNotificationStringForKey:@"Rise and shine! It's morning time!"
-           arguments:nil];
-
-   // Configure the trigger after  .
-   NSDateComponents* date = [[NSDateComponents alloc] init];
-    date.minute = date.minute + 1;
-   UNCalendarNotificationTrigger* trigger = [UNCalendarNotificationTrigger
-          triggerWithDateMatchingComponents:date repeats:NO];
-
-   // Create the request object.
-   UNNotificationRequest* request = [UNNotificationRequest
-          requestWithIdentifier:@"MorningAlarm" content:content trigger:trigger];
-
-     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-        if (error != nil) {
-            NSLog(@"%@", error.localizedDescription);
-        }
-     }];
+//  UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+//   content.title = [NSString localizedUserNotificationStringForKey:@"Wake up!" arguments:nil];
+//   content.body = [NSString localizedUserNotificationStringForKey:@"Rise and shine! It's morning time!"
+//           arguments:nil];
+//
+//   // Configure the trigger after  .
+//   NSDateComponents* date = [[NSDateComponents alloc] init];
+//    date.minute = date.minute + 1;
+//   UNCalendarNotificationTrigger* trigger = [UNCalendarNotificationTrigger
+//          triggerWithDateMatchingComponents:date repeats:NO];
+//
+//   // Create the request object.
+//   UNNotificationRequest* request = [UNNotificationRequest
+//          requestWithIdentifier:@"MorningAlarm" content:content trigger:trigger];
+//
+//     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+//     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+//        if (error != nil) {
+//            NSLog(@"%@", error.localizedDescription);
+//        }
+//     }];
 
 }
 
@@ -181,6 +179,10 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
         [plotDelegate initCalled];
         launchOptions = nil;
     }
+    [[NSNotificationCenter defaultCenter] addObserver: self
+       selector:@selector(handleLocationUpdate:)
+           name:PlotLocationUpdateMessageName
+         object:nil];
 }
 
 -(void)handleNotification:(UNNotificationRequest*)notification {
