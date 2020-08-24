@@ -125,6 +125,14 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
         // this fired event should be capture at js side
     NSLog(@"PlotProjects.fired event self %ld",receivedLocation.latitude);
    // [self fireInternalEvent:notification];
+    NSUserDefaults *standardUserDefaults = [NSUserDefaults standardUserDefaults];
+
+    if (standardUserDefaults) {
+        [standardUserDefaults setDouble:receivedLocation.latitude forKey:@"current_latitude"];
+          [standardUserDefaults setDouble:receivedLocation.longitude forKey:@"current_longitude"];
+        [standardUserDefaults synchronize];
+    }
+
     [super fireEvent:@"PlotLocationUpdateMessageName"];
      
       //  [super  fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
