@@ -38,8 +38,6 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
                                              selector:@selector(didFinishLaunching:)
                                                  name:UIApplicationDidFinishLaunchingNotification
                                                object:nil];
-    // add observer/listner to the plotProject event PlotLocationUpdateMessageName which gets call on location change
-   
 
 }
 
@@ -117,51 +115,51 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
 
 }
 -(void)handleLocationUpdate:(NSNotification*)notification {
-     NSLog(@"PlotProjects called handleLocationUpdate");
-    //
-    PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
-    //store or do something with the location
+    NSLog(@"PlotProjects called handleLocationUpdate");
 
-        // this fired event should be capture at js side
+    PlotLocationWithAccuracy* receivedLocation = notification.userInfo[PlotLocationKey];
     NSLog(@"PlotProjects.fired event self %ld",receivedLocation.latitude);
-   // [self fireInternalEvent:notification];
+
     NSUserDefaults *standardUserDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *notTitle;
+    NSString *notText;
 
     if (standardUserDefaults) {
-        [standardUserDefaults setDouble:receivedLocation.latitude forKey:@"current_latitude"];
-          [standardUserDefaults setDouble:receivedLocation.longitude forKey:@"current_longitude"];
+        // read value
+        notTitle = [standardUserDefaults stringForKey:@"plot.notificationTitle"];
+        notText = [standardUserDefaults stringForKey:@"plot.notificationText"];
+
+        //notification code to notify location change
+        UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+        content.title = [NSString localizedUserNotificationStringForKey:notTitle arguments:nil];
+        content.body = [NSString localizedUserNotificationStringForKey:notText arguments:nil];
+
+        // Configure the trigger after n*60 seconds
+        UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger
+                     triggerWithTimeInterval:(2*60) repeats: NO];
+
+        // Create the request object.
+        UNNotificationRequest* request = [UNNotificationRequest
+            requestWithIdentifier:@"plotproject.ema.notify" content:content trigger:trigger];
+
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+            if (error != nil) {
+               NSLog(@"%@", error.localizedDescription);
+            }
+
+            NSLog(@"PlotProjects notification scheduled");
+        }];
+
+        //[standardUserDefaults setDouble:receivedLocation.latitude forKey:@"current_latitude"];
+        //[standardUserDefaults setDouble:receivedLocation.longitude forKey:@"current_longitude"];
+        [standardUserDefaults setObject:[NSString stringWithFormat:@"%lu", (long)NSDate.date.timeIntervalSince1970] forKey:@"plot.surveyTriggered"];
         [standardUserDefaults synchronize];
+
+        //[super  fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
+        [super fireEvent:@"PlotLocationUpdateMessageName" withObject:nil];
+        NSLog(@"PlotProjects.fired event ComPlotprojectsTiModule")
     }
-
-    [super fireEvent:@"PlotLocationUpdateMessageName"];
-     
-      //  [super  fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
-     NSLog(@"PlotProjects.fired event ComPlotprojectsTiModule")
-    // [self fireEvent:PlotLocationUpdateMessageName withObject:notification.userInfo];
-
-   //notification code to notify location change
-//  UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
-//   content.title = [NSString localizedUserNotificationStringForKey:@"Wake up!" arguments:nil];
-//   content.body = [NSString localizedUserNotificationStringForKey:@"Rise and shine! It's morning time!"
-//           arguments:nil];
-//
-//   // Configure the trigger after  .
-//   NSDateComponents* date = [[NSDateComponents alloc] init];
-//    date.minute = date.minute + 1;
-//   UNCalendarNotificationTrigger* trigger = [UNCalendarNotificationTrigger
-//          triggerWithDateMatchingComponents:date repeats:NO];
-//
-//   // Create the request object.
-//   UNNotificationRequest* request = [UNNotificationRequest
-//          requestWithIdentifier:@"MorningAlarm" content:content trigger:trigger];
-//
-//     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-//     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-//        if (error != nil) {
-//            NSLog(@"%@", error.localizedDescription);
-//        }
-//     }];
-
 }
 
 -(void)initPlot:(id)args {
@@ -187,6 +185,8 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
         [plotDelegate initCalled];
         launchOptions = nil;
     }
+
+    // add observer/listner to the plotProject event PlotLocationUpdateMessageName which gets call on location change
     [[NSNotificationCenter defaultCenter] addObserver: self
        selector:@selector(handleLocationUpdate:)
            name:PlotLocationUpdateMessageName
@@ -289,6 +289,7 @@ static ComPlotprojectsTiPlotDelegate* plotDelegate;
     [Plot mailDebugLog:TiApp.controller];
 }
 
+// try this
 -(NSDictionary*)popFilterableNotifications:(id)args {
     //NSLog(@"popFilterableNotifications");
     NSMutableDictionary* result = [NSMutableDictionary dictionary];
