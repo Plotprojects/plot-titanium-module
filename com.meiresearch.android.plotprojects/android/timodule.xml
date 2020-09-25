@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:module xmlns:ti="http://ti.appcelerator.org" xmlns:android="http://schemas.android.com/apk/res/android">
+	<android>
+		<manifest>
+			<uses-feature android:glEsVersion="0x00020000" android:required="true" />
+			<uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE" />
+			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+			<application><receiver android:name=".GeotriggerHandlerService" android:exported="false">
+				<intent-filter>
+					<action android:name= "${applicationId}.plot.HandleGeotriggers" />
+				</intent-filter>
+			</receiver></application>
+		</manifest>
+	</android>
+	<modules>
+		<module platform="android">ti.playservices</module>
+	</modules>
+</ti:module>

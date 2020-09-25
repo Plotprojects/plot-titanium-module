@@ -1,0 +1,27 @@
+{
+  "project_info": {
+    "project_id": "PlotProjects-Example",
+    "project_number": "",
+    "name": "PlotProjects-Example"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:400000000000:android:0000000000000000",
+        "client_id": "android:com.plotprojects.exampleapp",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.plotprojects.exampleapp",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [ {
+        "current_key": ""
+      }],
+      "services": {}
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
