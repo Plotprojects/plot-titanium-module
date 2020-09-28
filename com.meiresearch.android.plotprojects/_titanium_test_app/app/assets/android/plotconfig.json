@@ -1,0 +1,9 @@
+{
+  "publicToken": "7peHRdkAzkZYHq4J",
+  "enableOnFirstRun": true,
+  "debug": true,
+  "emulatorTesting": true,
+  "showOnGoingNotification": "during_network_request",
+  "enableCombinedMonitoring": "false",
+  "geotriggerHandlerEnabled": true
+}
