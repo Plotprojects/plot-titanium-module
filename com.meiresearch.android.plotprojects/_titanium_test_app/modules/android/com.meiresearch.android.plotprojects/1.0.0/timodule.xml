@@ -8,7 +8,7 @@
 			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 			<application><receiver android:name=".GeotriggerHandlerService" android:exported="false">
 				<intent-filter>
-					<action android:name= "${applicationId}.plot.NewLocation" />
+					<action android:name= "${applicationId}.plot.HandleGeotriggers" />
 				</intent-filter>
 			</receiver></application>
 		</manifest>

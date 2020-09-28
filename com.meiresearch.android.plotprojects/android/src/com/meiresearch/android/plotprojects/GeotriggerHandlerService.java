@@ -18,6 +18,9 @@ package com.meiresearch.android.plotprojects;
 import com.plotprojects.retail.android.GeotriggerHandlerUtil;
 import com.plotprojects.retail.android.GeotriggerHandlerBroadcastReceiver;
 
+import androidx.core.app.NotificationCompat;
+import android.app.NotificationManager;
+import android.app.NotificationChannel;
 
 import android.content.Intent;
 import android.content.Context;
@@ -27,11 +30,32 @@ import android.content.BroadcastReceiver;
 import android.location.Location;
 
 import android.widget.Toast;
+import android.R;
 
 public class GeotriggerHandlerService extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d("GeotriggerHandlerService", "Geofence triggered!");
-        Toast.makeText(context, "Action: " + intent.getAction(), Toast.LENGTH_SHORT).show();
+
+        //Toast.makeText(context, "Action: " + intent.getAction(), Toast.LENGTH_SHORT).show();
+
+        //create notification channel
+        CharSequence name = "plotprojects";
+        String description = "plotprojects messages";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel("12", name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "12")
+                .setSmallIcon(R.drawable.btn_star)
+                .setContentTitle("Plot Projects Notification")
+                .setContentText("Geotrigger Handled!");
+
+        notificationManager.notify(1, builder.build());
     }
 
     //This is code that can be adapted so that this broadcastreceiver can be managed from titanium.
