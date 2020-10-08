@@ -16,6 +16,8 @@
 package com.meiresearch.android.plotprojects;
 
 import com.plotprojects.retail.android.GeotriggerHandlerUtil;
+import com.plotprojects.retail.android.GeotriggerHandlerUtil.Batch;
+import com.plotprojects.retail.android.Geotrigger;
 import com.plotprojects.retail.android.GeotriggerHandlerBroadcastReceiver;
 
 import androidx.core.app.NotificationCompat;
@@ -31,31 +33,51 @@ import android.location.Location;
 
 import android.widget.Toast;
 import android.R;
+import java.util.List;
 
 public class GeotriggerHandlerService extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d("GeotriggerHandlerService", "Geofence triggered!");
 
-        //Toast.makeText(context, "Action: " + intent.getAction(), Toast.LENGTH_SHORT).show();
+        if (GeotriggerHandlerUtil.isGeotriggerHandlerBroadcastReceiverIntent(context, intent)) {
+            GeotriggerHandlerUtil.Batch batch = GeotriggerHandlerUtil.getBatch(intent, context);
+            if (batch != null) {
+                List<Geotrigger> triggers = batch.getGeotriggers();
+                Geotrigger t;
 
-        //create notification channel
-        CharSequence name = "plotprojects";
-        String description = "plotprojects messages";
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel("12", name, importance);
-        channel.setDescription(description);
-        // Register the channel with the system; you can't change the importance
-        // or other notification behaviors after this
-        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
+                for(int i = 0; i < triggers.size(); i++){
+                    t = triggers.get(i);
+                    //Log.d("Handled Geotrigger", triggers[i].getGeofenceLatitude(), triggers[i].getGeofenceLongitude(), triggers[i].getName(), triggers[i].getTrigger());
+                    Log.d("Handled Geotrigger", t.getName());//t.getGeofenceLatitude());
+                    //Log.d("    ", t.getGeofenceLongitude());
+                    //Log.d("    ", t.getName());
+                    Log.d("    ", t.getTrigger());
+                    Log.d("handled geotrigger", "--end--");
 
+                    //create notification channel
+                    CharSequence name = "plotprojects";
+                    String description = "plotprojects messages";
+                    int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                    NotificationChannel channel = new NotificationChannel("12", name, importance);
+                    channel.setDescription(description);
+                    // Register the channel with the system; you can't change the importance
+                    // or other notification behaviors after this
+                    NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                    notificationManager.createNotificationChannel(channel);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "12")
-                .setSmallIcon(R.drawable.btn_star)
-                .setContentTitle("Plot Projects Notification")
-                .setContentText("Geotrigger Handled!");
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "12")
+                            .setSmallIcon(R.drawable.btn_star)
+                            .setContentTitle("Plot Projects Geotrigger")
+                            .setContentText(t.getTrigger());
 
-        notificationManager.notify(1, builder.build());
+                    notificationManager.notify(1, builder.build());
+
+                    break;
+                }
+
+                batch.markGeotriggersHandled(triggers);
+            }
+        }
     }
 
     //This is code that can be adapted so that this broadcastreceiver can be managed from titanium.
@@ -92,5 +114,5 @@ public class GeotriggerHandlerService extends BroadcastReceiver {
 //    public void onTaskRemoved(Intent rootIntent) {
 //
 //    }
-    
+
 }

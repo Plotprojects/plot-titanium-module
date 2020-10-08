@@ -6,6 +6,7 @@
 			<uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE" />
 			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 			<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 			<application><receiver android:name=".GeotriggerHandlerService" android:exported="false">
 				<intent-filter>
 					<action android:name= "${applicationId}.plot.HandleGeotriggers" />
